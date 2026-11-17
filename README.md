@@ -159,6 +159,7 @@ assets/js/quality.js       四层筛选与加权评分
 assets/js/recommender.js   去重、分层/加权随机、已读/隐藏/上一批惩罚
 assets/js/storage.js       localStorage 封装（含感兴趣/已换入新内容集合）
 assets/js/custom-tags.js   用户自建标签规则引擎
+assets/js/live-fetch.js    浏览器实时抓取官方 RSS（CORS 代理）+ 机器翻译汉化 + 合规组装
 assets/js/ui.js            渲染、筛选、事件、感兴趣标记、来源台账、审计表
 assets/js/qrcode.js        自写 QR（Byte 模式，ECC H，v1–v20）
 assets/js/pdf-lite.js      自写最小 PDF（JPEG 页 + 元数据 + 链接注释）
@@ -188,6 +189,7 @@ assets/js/export-styles.js 由 export.css 生成的内联 CSS
 │     ├─ recommender.js
 │     ├─ storage.js
 │     ├─ custom-tags.js
+│     ├─ live-fetch.js                浏览器实时抓取 RSS + 机器翻译（新内容来源①）
 │     ├─ ui.js
 │     ├─ qrcode.js
 │     ├─ pdf-lite.js
@@ -218,7 +220,8 @@ assets/js/export-styles.js 由 export.css 生成的内联 CSS
    ├─ build-standalone.mjs
    ├─ validate.cjs
    ├─ test-custom-tags.cjs
-   └─ test-refresh.cjs
+   ├─ test-refresh.cjs
+   └─ test-live-fetch.cjs
 ```
 
 ---
@@ -684,7 +687,7 @@ node --check assets/js/qrcode.js
 node --check assets/js/custom-tags.js
 node --check assets/js/storage.js
 node --check assets/js/data-loader.js
-node --check assets/js/recommender.js
+node --check assets/js/live-fetch.js
 ```
 
 ### 9.3 自定义标签测试
@@ -703,7 +706,15 @@ node tools/test-refresh.cjs
 
 5 项测试全部通过：新内容池 28 条全部通过四层质量筛选且 URL 唯一、感兴趣标记的增删与读取、已换入新内容 id 去重持久化、损坏数据退化、`arrangeForSources` 同源连续上限。零浏览器依赖。
 
-### 9.5 更新管道测试
+### 9.5 实时抓取测试
+
+```bash
+node tools/test-live-fetch.cjs
+```
+
+12 项测试全部通过：`normalizeText` / `stripBoilerplate` / `wordCount` / `hashId` 纯函数、摘要上限与 `quality.js` 一致、`pickCategory` 领域映射、`assembleArticle` 产出过四层筛选的合规条目、超长摘要截断、禁止翻译来源拒绝、`parseRss` 解析、mock `fetch` 下 `fetchBatch` 完整抓取→翻译→组装流程（含 URL / 标题排除与网络失败兜底）。零真实网络依赖。
+
+### 9.6 更新管道测试
 
 ```bash
 node pipeline/tests/pipeline.test.js
@@ -726,7 +737,7 @@ node pipeline/tests/pipeline.test.js
 
 真实网络、真实模型输出质量和跨机器锁不在本机验收范围内，见第 11 节。
 
-### 9.6 本机未完成的浏览器验收
+### 9.7 本机未完成的浏览器验收
 
 本机只有 Edge 157。无头模式因本机 crashpad/权限问题失败：
 
@@ -742,9 +753,9 @@ FATAL:mojo...platform_channel.cc:187 Check failed
 - iOS Safari 分享/长按保存；
 - 图片 CORS 预检在真实跨域图片上的表现。
 
-请在 Chrome / Safari / Edge 正常窗口中按第 9.5 节手工验收。本机只完成了静态逻辑、数据结构、QR 矩阵、PDF 文件结构和 CSS 约束校验。
+请在 Chrome / Safari / Edge 正常窗口中按第 9.8 节手工验收。本机只完成了静态逻辑、数据结构、QR 矩阵、PDF 文件结构和 CSS 约束校验。
 
-### 9.7 手工验收清单
+### 9.8 手工验收清单
 
 - [ ] 打开页面能看到 12 张随机卡片，不是骨架屏卡死。
 - [ ] 点“换一批”/按 `R` 能换，且尽量不重复上一批。
@@ -762,6 +773,10 @@ FATAL:mojo...platform_channel.cc:187 Check failed
 - [ ] 二维码清晰可扫；用手机扫一次原文链接。
 - [ ] 图片跨域失败时显示占位图，导出不中断。
 - [ ] 导出失败有具体原因、重试和打印兜底。
+- [ ] 标记几张卡片「★ 感兴趣」，点「刷新内容」：感兴趣的保留、其余被换成新主题，并轻提示来源。
+- [ ] 联网时刷新能看到来源标注「实时抓取的官方新内容」；断网或代理不可用时提示改用「已缓存的实时新内容 / 预置新内容池」，且不与旧内容重复。
+- [ ] 反复刷新直到预置池 + 实时内容用尽，提示「没有更多未读过的新内容」，不拿重复内容凑数。
+- [ ] 标题栏色点可切换朱砂/靛蓝/松绿/琥珀，刷新页面后仍保留；导出物始终为浅色。
 
 ---
 
@@ -1192,24 +1207,32 @@ node tools/build-standalone.mjs
 
 每张卡片操作栏有一个「☆ 感兴趣」按钮（点击后变「★ 感兴趣」，再点取消）。点击「刷新内容」时：
 
-1. **保留**当前批次中所有标记了「★ 感兴趣」的卡片（位置也会保留，重排后仍在）。
+1. **保留**当前批次中所有标记了「★ 感兴趣」的卡片（重排后仍在）。
 2. **剔除**当前批次中所有未标记「感兴趣」的卡片。
-3. 从**新内容池** `data/fresh-articles.json` 补入全新主题，把批次补足到 12 条。新内容池现有 28 条，全部来自 NASA / NIST 官方 RSS，主题与主内容池 36 条**完全不重复**，并已逐条通过四层质量筛选（公共领域来源、允许翻译、摘要不超硬上限）。
-4. 已换入过的新内容 id 记入 localStorage（`usedFreshIds`），**不会被反复换入**；池用尽时会如实提示，不拿旧内容凑数。
-5. 若 `APP_CONFIG.refresh.crawlApi` 已配置（后端爬取接口），先 `POST` 触发一次真实抓取并重读数据文件，把爬取到的新内容并入内容池与新内容池；未配置则使用预置新内容池。
-6. 刷新期间按钮显示「正在获取新内容…」并禁用，完成后轻提示「保留 X 条感兴趣，换入 Y 条新内容」。
+3. 按数据源优先级**换入全新主题**把批次补足到 12 条（见 15.2）：① 浏览器实时抓取官方 RSS；② 上次成功抓取的本地缓存；③ 预置新内容池 `data/fresh-articles.json`。
+4. 换入前按 URL / 标题与现有全部内容去重；已换入过的新内容 id 记入 localStorage（`usedFreshIds`），**不会被反复换入**；所有可用来源都用尽时如实提示，不拿旧内容凑数。
+5. 若 `APP_CONFIG.refresh.crawlApi` 已配置（自建后端爬取接口），先 `POST` 触发一次真实抓取并重读数据文件，把爬取到的新内容并入候选；未配置则走下面的浏览器实时抓取。
+6. 刷新期间按钮显示「正在抓取新主题… / 正在抓取并翻译新主题…」并禁用，完成后轻提示「保留 X 条感兴趣，换入 Y 条新内容（来源）」。
 
-### 15.2 「两者结合」：预置池 + 真实后端接口
+### 15.2 数据源优先级：实时抓取 → 本地缓存 → 预置池
 
-- **开箱即用**：没有后端也能刷新出全新主题——靠的是预置新内容池 `data/fresh-articles.json`（静态数据文件，随站点一起发布）。
-- **接真实爬取**：部署一个受控后端接口，把地址填入 `assets/js/config.js` 的 `refresh.crawlApi`。前端只发 `POST` 信号、不保存任何凭据；抓取、许可核查、robots 遵守和频率限制都在后端完成。接口返回后，刷新会重新读取数据文件（`data/*.json` 带时间戳绕过缓存），把后端新抓取的内容纳入候选。
-- **网页本身不爬外网。** 纯前端受 CORS、凭据与浏览器沙箱限制，不可能也不应该在浏览器里直接抓取来源站点；真实爬取永远在服务端（`pipeline/update.js`，见第 12、13 章）。
+「换入的新内容」按下面的顺序尝试，**任一层取到足够条目即停止**：
+
+| 优先级 | 来源 | 实现 | 适用 |
+| --- | --- | --- | --- |
+| ① 实时抓取 | 官方 RSS（NASA Science / NIST News） | `assets/js/live-fetch.js` 经公共 CORS 代理 `proxy.cors.dev` 读取 RSS，机器翻译（MyMemory）汉化标题与摘录，组装成合规条目 | 联网、代理可用时。**可持续获取真正的新内容，不受预置池 28 条上限约束** |
+| ② 本地缓存 | 之前成功抓取并缓存的实时条目 | 存于 localStorage（`liveCache`，最近 60 条），网络失败时继续换入未用过的 | 代理 / 翻译服务临时不可用时 |
+| ③ 预置池 | `data/fresh-articles.json` 28 条 | 随站点发布的静态新主题池，主题与主池 36 条不重复 | 完全离线或实时抓取失败时的兜底 |
+
+- **实时抓取的合规边界**：只抓取 `sources.json` 中已登记、`status=active`、有 `license_basis`、`grade≠D`、`translation_allowed===true` 的来源（实际用 nasa / nist，均为美国政府作品 / 公共领域）。只做「标题与摘录汉化 + 原文链接」，不搬运正文；摘要按原文词数 10% / 400 字硬上限截断（与 `quality.js` 一致），并逐条跑四层质量筛选，未通过的不进候选。机器翻译仅作索引参考，卡片标注翻译声明。
+- **静态站的现实约束**：浏览器直连 RSS 受同源策略限制，必须经公共 CORS 代理（`proxy.cors.dev`，免费层 GET、600 req/min/IP、6MiB 内）；翻译服务 `api.mymemory.translated.net` 有速率与长度限制。代理 / 翻译服务是第三方，可能随时变更或不可用——因此保留缓存与预置池兜底。生产环境应部署自己的后端代理（`refresh.crawlApi`），把抓取、许可核查、robots 遵守和频率限制放在服务端，前端不保存任何凭据。
+- **可配置**：`assets/js/config.js` 的 `refresh.liveFetch` 可开关（`enabled`）、替换代理列表（`proxies`）、翻译接口（`translateApi`）、超时 / 限速、每次抓取条数（`perRefreshLimit`）与 feed 列表（`feeds`，每条含 `source_id` 与 `default_category`）。
 
 ### 15.3 与换一批 / 筛选 / 本地状态的关系
 
 - 「换一批」仍是从**当前内容池**重新抽样；「刷新内容」是**换掉未感兴趣的卡片并补入新主题**，两者互不替代。
-- 刷新保留当前的领域 / 标签筛选、已读与「不再推荐」状态，也不触碰导出流程；「★ 感兴趣」与「已换入新内容」记录都存于 localStorage，筛选与导出都不会丢失。
-- 不存在的新内容池条目时（例如 `file://` 模式未重新生成内嵌快照），会退回主内容池抽样并明确提示；要看到预置新内容，请重新生成内嵌快照（第 1 章）或用 HTTP 方式发布。
+- 刷新保留当前的领域 / 标签筛选、已读与「不再推荐」状态，也不触碰导出流程；「★ 感兴趣」、「已换入新内容」（`usedFreshIds`）与「实时抓取缓存」（`liveCache`）都存于 localStorage，筛选与导出都不会丢失。
+- 完全离线且预置池也用尽时，会如实提示「本轮没有更多未读过的新内容」，不拿重复内容凑数。要恢复实时抓取，联网并确保代理可达即可；要扩充静态兜底池，往 `data/fresh-articles.json` 增补条目后重新生成内嵌快照（第 1 章）。
 
 ---
 

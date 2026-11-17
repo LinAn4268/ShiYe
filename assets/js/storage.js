@@ -63,6 +63,18 @@
     return [...set];
   }
 
+  /* 实时抓取缓存：保存最近一次成功抓取的条目，网络失败时可继续换入未用过的内容。 */
+  function getLiveCache() {
+    const value = read('liveCache', []);
+    return Array.isArray(value) ? value.filter((item) => item && item.id && item.url) : [];
+  }
+
+  function saveLiveCache(articles) {
+    const list = Array.isArray(articles) ? articles : [];
+    // 只保留最近 60 条，避免 localStorage 超限。
+    return write('liveCache', list.slice(-60));
+  }
+
   function markRead(id, value) {
     const state = getState();
     const set = new Set(state.readIds);
@@ -139,6 +151,8 @@
     markInterested,
     isInterested,
     getUsedFreshIds,
-    addUsedFreshIds
+    addUsedFreshIds,
+    getLiveCache,
+    saveLiveCache
   };
 })(window);

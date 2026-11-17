@@ -186,43 +186,52 @@
     return picked;
   }
 
-  // 内容刷新：保留标记「感兴趣」的卡片，剔除其余，并从"新内容池"换入全新内容。
-  // 若配置了 crawlApi，则先触发后端真实爬取并重读数据；静态站默认使用预置新内容池。
+  // 把实时抓取的 article 数组送进质量筛选与去重，得到可选条目。
+  function buildLivePool(articles, now) {
+    if (!articles || !articles.length) return [];
+    const built = global.Recommender.buildPool(articles, App.sources, App.categories, App.config, now);
+    if (built && built.dropped && built.dropped.length) {
+      console.info('[实时抓取] ' + built.dropped.length + ' 条未通过质量筛选，已丢弃。');
+    }
+    return built.items || [];
+  }
+
+  // 内容刷新：保留标记「感兴趣」的卡片，剔除其余，并换入全新的内容。
+  // 数据源优先级：① 浏览器实时抓取官方 RSS（经 CORS 代理 + 机器翻译）；
+  //               ② 上次成功抓取的本地缓存；③ 预置新内容池 freshArticles。
+  // 若配置 crawlApi，则先触发自建后端爬取并重读数据（生产环境推荐）。
   async function refreshContent() {
     if (App.refreshing) return;
     App.refreshing = true;
     const button = $('#refresh-button');
     const originalHTML = button ? button.innerHTML : '';
-    if (button) { button.disabled = true; button.textContent = '正在获取新内容…'; }
+    const setButton = (text) => { if (button) { button.disabled = true; button.textContent = text; } };
+    setButton('正在抓取新主题…');
 
     try {
       const cfg = App.config.refresh || {};
+      const liveCfg = cfg.liveFetch || {};
+      const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
       let crawlMode = false;
 
-      // 可选：触发真实后端爬取并重读数据（把新抓取内容并入内容池与新内容池）。
+      // 可选：触发自建后端爬取并重读数据（把新抓取内容并入内容池与新内容池）。
       if (cfg.crawlApi) {
         try {
           const response = await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
           crawlMode = !!(response && response.ok);
         } catch (error) {
-          console.warn('触发爬取接口失败，改用预置新内容池：', error);
+          console.warn('触发爬取接口失败，改为浏览器直接抓取：', error);
         }
         if (crawlMode) {
           const data = await global.DataLoader.loadAll(App.config, { bust: true });
-          App.domainsDoc = data.domains;
           App.categories = (data.domains && data.domains.categories) || App.categories;
-          App.sourcesDoc = data.sources;
           App.sources = (data.sources && data.sources.sources) || App.sources;
-          App.articlesDoc = data.articles;
           App.articles = (data.articles && data.articles.articles) || App.articles;
-          App.auditDoc = data.audit || {};
           App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
           App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
           App.state = global.Store.getState();
-          const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
           if (global.CustomTags) global.CustomTags.applyTo(App.articles);
-          const rebuilt = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
-          App.pool = rebuilt.items;
+          App.pool = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now).items;
           App.freshPool = global.Recommender.buildPool(
             (data.freshArticles && data.freshArticles.articles) || [],
             App.sources, App.categories, App.config, now
@@ -233,16 +242,74 @@
         }
       }
 
-      // 1) 保留当前批次中标记「感兴趣」的卡片。
-      const interested = new Set((App.state && App.state.interestedIds) || global.Store.getState().interestedIds);
+      // 1) 保留当前批次中标记「感兴趣」的卡片，并记录现有全部标题/URL 用于去重。
+      App.state = global.Store.getState();
+      const interested = new Set(App.state.interestedIds);
       const kept = App.batch.filter((entry) => interested.has(entry.article.id));
+      const keptIds = new Set(kept.map((entry) => entry.article.id));
+      const existingUrls = new Set(App.articles.map((a) => global.Recommender.canonicalUrl(a.url)));
+      const existingTitles = new Set(App.articles.map((a) => global.Recommender.normalizeText(a.title_original)));
 
-      // 2) 从新内容池换入全新内容：排除已在批次、已换入过的内容，并遵守当前筛选。
+      // 2) 实时抓取：抓取 → 汉化 → 质量筛选 → 去重。失败则依次回退缓存、预置池。
+      let liveEntries = [];
+      let sourceLabel = '预置新内容池';
+      let freshArticles = [];
+
+      if (!crawlMode && global.LiveFetch && liveCfg.enabled !== false) {
+        setButton('正在抓取并翻译新主题…');
+        try {
+          const batch = await global.LiveFetch.fetchBatch(App.config, App.sources, App.categories, {
+            limit: liveCfg.perRefreshLimit || 8,
+            excludeUrls: [...existingUrls],
+            excludeTitles: [...existingTitles],
+            now
+          });
+          if (batch && batch.articles && batch.articles.length) {
+            freshArticles = batch.articles;
+            liveEntries = buildLivePool(freshArticles, now);
+            sourceLabel = '实时抓取的官方新内容';
+            // 归并进缓存（去重后保存），供网络失败时继续换入。
+            const cache = global.Store.getLiveCache();
+            const byUrl = new Map(cache.map((a) => [global.Recommender.canonicalUrl(a.url), a]));
+            freshArticles.forEach((a) => byUrl.set(global.Recommender.canonicalUrl(a.url), a));
+            global.Store.saveLiveCache([...byUrl.values()]);
+          } else {
+            console.warn('[实时抓取] 本轮未取到可用条目：', batch && batch.error);
+          }
+        } catch (error) {
+          console.warn('[实时抓取] 失败，改用本地缓存/预置池：', error);
+        }
+      }
+
+      // 2b) 若实时抓取没取到足够条目，先用本地缓存补足。
+      if (!liveEntries.length) {
+        const cacheArticles = global.Store.getLiveCache();
+        if (cacheArticles.length) {
+          const used = new Set(global.Store.getUsedFreshIds());
+          const unusedCache = cacheArticles.filter((a) => !used.has(a.id));
+          if (unusedCache.length) {
+            liveEntries = buildLivePool(unusedCache, now);
+            sourceLabel = '已缓存的实时新内容';
+          }
+        }
+      }
+
+      // 2c) 仍不足则用预置新内容池补底（保证「刷新」始终有变化）。
+      if (liveEntries.length < Math.max(0, App.config.batchSize - kept.length)) {
+        const used = new Set(global.Store.getUsedFreshIds());
+        const preset = App.freshPool.filter((entry) => !used.has(entry.article.id));
+        liveEntries = liveEntries.concat(preset);
+        if (sourceLabel === '预置新内容池' && !freshArticles.length) sourceLabel = '预置新内容池';
+      }
+
+      // 3) 从候选中排除：已用、已在保留批次、当前筛选不匹配，然后按质量加权抽取。
       const used = new Set(global.Store.getUsedFreshIds());
-      const inBatch = new Set(kept.map((entry) => entry.article.id));
+      const inBatch = new Set(keptIds);
       const needed = Math.max(0, App.config.batchSize - kept.length);
-      let candidates = App.freshPool.filter((entry) =>
-        !used.has(entry.article.id) && !inBatch.has(entry.article.id));
+      let candidates = liveEntries.filter((entry) =>
+        !used.has(entry.article.id) && !inBatch.has(entry.article.id) &&
+        !existingUrls.has(global.Recommender.canonicalUrl(entry.article.url)) &&
+        !existingTitles.has(global.Recommender.normalizeText(entry.article.title_original)));
       if (App.filters.category !== 'all' || App.filters.tag !== 'all') {
         const allowed = global.Recommender.filterItems(candidates, {
           state: App.state,
@@ -253,31 +320,31 @@
       }
       const picked = pickWeighted(candidates, needed);
 
-      // 3) 记录已换入的新内容 id，避免反复出现。
+      // 4) 记录已换入的 id（含实时与预置），避免反复出现。
       if (picked.length) global.Store.addUsedFreshIds(picked.map((entry) => entry.article.id));
 
-      // 4) 组装新批次（保留感兴趣 + 换入新内容）。
+      // 5) 组装新批次（保留感兴趣 + 换入新内容），重排避免同源连续。
       const combined = global.Recommender.arrangeForSources
         ? global.Recommender.arrangeForSources(kept.concat(picked), App.config.maxConsecutiveSource)
         : kept.concat(picked);
       App.batch = combined;
       App.meta = {
-        available: App.freshPool.length,
+        available: App.freshPool.length + (freshArticles ? freshArticles.length : 0),
         categories: new Set(combined.map((entry) => entry.article.category)).size,
         sourceCount: new Set(combined.map((entry) => entry.article.source_id)).size,
         notes: []
       };
       if (kept.length) App.meta.notes.push('已保留 ' + kept.length + ' 条标记「感兴趣」的内容。');
-      if (picked.length) App.meta.notes.push('已换入 ' + picked.length + ' 条新内容。');
+      if (picked.length) App.meta.notes.push('已换入 ' + picked.length + ' 条全新内容（' + sourceLabel + '）。');
       if (combined.length < App.config.batchSize) {
-        App.meta.notes.push('新内容池暂时用尽，已展示可用内容，未用重复内容凑数。');
+        App.meta.notes.push('本轮没有更多未读过的新内容，已展示可用条目，未用重复内容凑数。');
       }
       if (combined.length) global.Store.setLastBatch(combined.map((entry) => entry.article.id));
       App.issue += 1;
       global.Store.setPreference('issue', App.issue);
       renderFeed();
 
-      const modeText = crawlMode ? '已触发爬取并读取最新内容' : '已从预置新内容池换入';
+      const modeText = crawlMode ? '已触发后端爬取并读取最新内容' : '已' + sourceLabel;
       showToast(modeText + '：保留 ' + kept.length + ' 条感兴趣，换入 ' + picked.length + ' 条新内容。');
     } catch (error) {
       console.error('内容刷新失败：', error);

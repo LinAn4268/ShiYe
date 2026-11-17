@@ -80,9 +80,37 @@
     refresh: {
       crawlApi: '',
       cacheBust: true,
-      // 点击“刷新内容”时：保留当前批次标记“感兴趣”的卡片，剔除其余，并从 freshArticles
-      // 预置新内容池（或 crawlApi 返回的新内容）补足到 batchSize。已用过的新内容不再重复。
-      keepInterested: true
+      // 点击“刷新内容”时：保留当前批次标记“感兴趣”的卡片，剔除其余，并从实时抓取（优先）
+      // 或 freshArticles 预置新内容池补足到 batchSize。已用过的新内容不再重复。
+      keepInterested: true,
+      // 浏览器实时抓取：经公共 CORS 代理读取官方 RSS，机器翻译汉化后换入。
+      // 静态站无法直连外网，因此依赖公共代理；失败自动回退预置内容池。
+      // 真实生产环境应把 crawlApi 指向自建后端代理，并关闭 liveFetch.enabled。
+      liveFetch: {
+        enabled: true,
+        corsProxy: 'https://proxy.cors.dev/',
+        proxies: ['https://proxy.cors.dev/'],
+        translateApi: 'https://api.mymemory.translated.net/get',
+        timeoutMs: 12000,
+        translateDelayMs: 180,
+        bodyWordsFloor: 750,
+        bodyWordsFactor: 5,
+        perRefreshLimit: 8,
+        feeds: [
+          {
+            id: 'nasa-science',
+            source_id: 'nasa',
+            url: 'https://science.nasa.gov/feed/',
+            default_category: 'science-nature'
+          },
+          {
+            id: 'nist-news',
+            source_id: 'nist',
+            url: 'https://www.nist.gov/news-events/news/rss.xml',
+            default_category: 'science-nature'
+          }
+        ]
+      }
     },
     export: {
       pngScale: 2,
