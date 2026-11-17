@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3ecdf">
+  <title>跨领域优质内容随机推荐站 · 拾页</title>
+  <meta name="description" content="从 21 个领域随机挑选优质内容，提供中文摘录提炼摘要、原始来源与原文链接。">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/export.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <header class="site-header" id="top">
+    <div class="shell header-inner">
+      <a class="brand" href="#top" aria-label="跨领域优质内容随机推荐站首页">
+        <span class="brand-mark" aria-hidden="true">拾</span>
+        <span class="brand-copy">
+          <strong>跨领域优质内容随机推荐站</strong>
+          <small>PAGE OF EVERYTHING · 拾页</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="主导航">
+        <button type="button" class="nav-link is-active" data-view="feed" aria-current="page">今日推荐</button>
+        <button type="button" class="nav-link" data-view="tags">我的标签</button>
+        <button type="button" class="nav-link" data-view="sources">来源登记</button>
+        <button type="button" class="nav-link" data-view="method">筛选与规则</button>
+      </nav>
+
+      <div class="header-tools">
+        <span class="snapshot" title="本页使用静态演示快照">快照 2026.11.16</span>
+        <button type="button" class="icon-button" id="theme-toggle" aria-label="切换深浅色主题" title="切换深浅色主题">
+          <span class="theme-icon" aria-hidden="true">◐</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="shell">
+    <section id="view-feed" class="view" aria-labelledby="feed-title">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-rule"></span> ISSUE <span id="issue-number">001</span> · RANDOM CURATION</p>
+          <h1 id="feed-title">把世界，<span class="hero-accent">随机</span>翻到<br>好的一页。</h1>
+          <p class="hero-lead">从 21 个领域里分层抽取 12 条优质内容。不追逐信息流，只保留来源清楚、事实可核验、值得慢一点读的那一页。</p>
+          <div class="hero-actions">
+            <button type="button" class="button button-primary" id="shuffle-button">
+              <span>换一批</span>
+              <span class="button-arrow" aria-hidden="true">→</span>
+            </button>
+            <button type="button" class="button button-quiet" id="explain-button">推荐规则</button>
+            <span class="key-hint">按 <kbd>R</kbd> 也可以</span>
+          </div>
+        </div>
+
+        <aside class="batch-ticket" aria-label="本批推荐概况">
+          <div class="ticket-top">
+            <span class="ticket-label">THIS BATCH</span>
+            <span class="ticket-stamp">分层抽样</span>
+          </div>
+          <div class="ticket-number"><span id="batch-count">—</span><small>/ 12</small></div>
+          <dl class="ticket-stats">
+            <div><dt>覆盖领域</dt><dd id="batch-categories">—</dd></div>
+            <div><dt>平均质量</dt><dd id="batch-score">—</dd></div>
+            <div><dt>来源数量</dt><dd id="batch-sources">—</dd></div>
+          </dl>
+          <p class="ticket-note" id="batch-note">正在从候选池中抽取……</p>
+          <div class="ticket-barcode" aria-hidden="true"></div>
+        </aside>
+      </section>
+
+      <section class="filter-panel" aria-labelledby="filter-title">
+        <div class="section-heading compact">
+          <div>
+            <p class="section-kicker">BROWSE BY FIELD</p>
+            <h2 id="filter-title">选一个领域，或者交给随机。</h2>
+          </div>
+          <div class="filter-actions">
+            <button type="button" class="text-button" id="manage-tags-button">＋ 管理我的标签</button>
+            <button type="button" class="text-button" id="reset-filters">重置筛选</button>
+          </div>
+        </div>
+
+        <div class="chip-scroller">
+          <div class="chip-row" id="category-chips" role="group" aria-label="一级领域筛选">
+            <button type="button" class="chip is-active" data-category="all" aria-pressed="true">全部领域 <span class="chip-count" id="count-all">—</span></button>
+          </div>
+        </div>
+
+        <div class="tag-filter" id="tag-filter" hidden>
+          <span class="tag-filter-label">二级标签</span>
+          <div class="tag-row" id="tag-chips" role="group" aria-label="二级标签筛选"></div>
+        </div>
+
+        <div class="filter-foot">
+          <p class="filter-hint"><span class="status-dot"></span> 同一领域最多 3 条 · 同一标签最多 1 条 · 同一来源连续最多 2 条</p>
+          <p class="filter-mode" id="filter-mode">全部领域</p>
+        </div>
+      </section>
+
+      <section id="feed-status" class="feed-status" aria-live="polite">
+        <div class="skeleton-grid" aria-hidden="true">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+        <p class="loading-copy"><span class="spinner"></span> 正在筛选来源、核对摘要与许可……</p>
+      </section>
+
+      <section id="card-grid" class="card-grid" aria-live="polite" aria-label="推荐内容列表" hidden></section>
+
+      <section id="empty-state" class="empty-state" hidden>
+        <span class="empty-mark" aria-hidden="true">空</span>
+        <h2>这一页暂时留白。</h2>
+        <p id="empty-copy">这个筛选组合下没有通过质量筛选的内容。换一个领域，或重置筛选再看看。</p>
+        <div class="empty-actions">
+          <button type="button" class="button button-primary" id="empty-reset">查看全部领域</button>
+          <button type="button" class="button button-quiet" id="empty-clear-hidden">恢复“不再推荐”的内容</button>
+        </div>
+      </section>
+
+      <section class="end-note">
+        <span class="end-rule"></span>
+        <p>以上内容均以“中文摘录提炼摘要 + 原文链接”的方式呈现，不替代原文。来源、作者、日期、语言与授权状态见每张卡片。</p>
+        <span class="end-rule"></span>
+      </section>
+    </section>
+
+    <section id="view-tags" class="view" aria-labelledby="tags-title" hidden>
+      <div class="page-intro">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> MY TAGS</p>
+        <h1 id="tags-title">按自己的主题，<br>给内容<em>重新归类</em>。</h1>
+        <p class="page-lead">创建关键词规则，本站会自动扫描当前与以后更新的所有内容，命中的文章打上你的标签，并出现在筛选器中。规则只保存在你自己的浏览器里，不影响来源许可与质量评分。</p>
+      </div>
+
+      <div class="notice-card">
+        <strong>关于自动生效</strong>
+        <p>标签是根据关键词自动匹配的，不写入内容池、不上传服务器。以后每次内容更新，页面加载时都会用你现有的规则重新匹配一遍，因此你创建的标签会自动覆盖新文章。规则只在这台设备、这个浏览器有效。</p>
+      </div>
+
+      <div class="tag-manager">
+        <form id="tag-create-form" class="tag-create-form" autocomplete="off">
+          <h2>新建标签规则</h2>
+          <div class="tag-field">
+            <label for="tag-name-input">标签名称</label>
+            <input id="tag-name-input" type="text" maxlength="20" placeholder="例如：引力波" required>
+            <p class="tag-hint">最多 20 字，不能与已有标签重名。</p>
+          </div>
+          <div class="tag-field">
+            <label for="tag-category-input">作用领域</label>
+            <select id="tag-category-input">
+              <option value="all">全部领域</option>
+            </select>
+            <p class="tag-hint">选择“全部领域”时，关键词会在任意领域的文章中匹配。</p>
+          </div>
+          <div class="tag-field">
+            <label for="tag-keywords-input">关键词</label>
+            <textarea id="tag-keywords-input" rows="3" placeholder="用逗号、分号或换行分隔，例如：引力波, 黑洞, 时空"></textarea>
+            <p class="tag-hint">最多 12 个关键词，每个不超过 60 字。命中任意一个即打上标签（不区分大小写）。</p>
+          </div>
+          <button type="submit" class="button button-primary" id="tag-create-submit">创建标签</button>
+          <p id="tag-form-message" class="tag-form-message" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="tag-rules-panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="section-kicker">YOUR RULES</p>
+              <h2>我的规则 <span id="tag-rule-count" class="tag-rule-count">0</span></h2>
+            </div>
+          </div>
+          <div id="tag-rule-list" class="tag-rule-list" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-sources" class="view" aria-labelledby="sources-title" hidden>
+      <div class="page-intro">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> SOURCE LEDGER</p>
+        <h1 id="sources-title">每一个来源，<br>都要说清楚<em>凭什么</em>。</h1>
+        <p class="page-lead">来源登记不是装饰。等级、获取方式、许可依据、robots 核查、是否允许翻译/衍生、最近复核日期，缺一项就不进入推荐池。RSS 或 API 的存在，本身不构成转载许可。</p>
+      </div>
+
+      <div class="ledger-summary">
+        <div><span class="ledger-number" id="source-active-count">—</span><span>个在池来源</span></div>
+        <div><span class="ledger-number" id="source-excluded-count">—</span><span>个反例 / 已排除</span></div>
+        <div><span class="ledger-number" id="source-review-count">—</span><span>个待 90 天复核</span></div>
+      </div>
+
+      <div class="notice-card">
+        <strong>边界提示</strong>
+        <p>本站默认只展示“标题 + 中文摘录提炼摘要 + 原文链接”，即使 feed 输出全文、即使来源属于公共领域，也不把全文嵌入页面或以折叠、展开、图片化方式呈现。来源条款禁止翻译或衍生作品的，不生成摘要，只保留“原文标题 + 链接”模式；演示池中此类来源直接排除。</p>
+      </div>
+
+      <div class="source-toolbar">
+        <div class="chip-row" id="source-grade-chips" role="group" aria-label="来源等级筛选">
+          <button type="button" class="chip is-active" data-grade="all" aria-pressed="true">全部</button>
+          <button type="button" class="chip" data-grade="A" aria-pressed="false">A 级</button>
+          <button type="button" class="chip" data-grade="B" aria-pressed="false">B 级</button>
+          <button type="button" class="chip" data-grade="C" aria-pressed="false">C 级</button>
+          <button type="button" class="chip" data-grade="D" aria-pressed="false">D 级</button>
+          <button type="button" class="chip" data-grade="excluded" aria-pressed="false">已排除</button>
+        </div>
+        <p class="toolbar-note" id="source-toolbar-note">按来源等级审查，不代替逐源许可核查。</p>
+      </div>
+
+      <div id="source-list" class="source-list" aria-live="polite"></div>
+
+      <section class="mini-section">
+        <div class="section-heading compact">
+          <div>
+            <p class="section-kicker">REVIEW RHYTHM</p>
+            <h2>复核与监控节奏</h2>
+          </div>
+        </div>
+        <div class="rhythm-grid">
+          <div class="rhythm-item"><span>01</span><h3>每 90 天</h3><p>至少复核一次来源等级、条款、robots 与翻译/衍生边界；到期前在来源卡上标出。</p></div>
+          <div class="rhythm-item"><span>02</span><h3>连续 7 天</h3><p>无有效条目则自动降权或移出池；不以旧条目反复凑数。</p></div>
+          <div class="rhythm-item"><span>03</span><h3>收到投诉</h3><p>立即暂停该来源与相关条目，完成 takedown 记录后再决定是否恢复。</p></div>
+          <div class="rhythm-item"><span>04</span><h3>Feed 变化</h3><p>RSS 从摘要变全文，或从全文变摘要，都不改变本站“只做摘要 + 链接”的使用边界。</p></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="view-method" class="view" aria-labelledby="method-title" hidden>
+      <div class="page-intro">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> QUALITY PIPELINE</p>
+        <h1 id="method-title">不是“抓来就推”，<br>而是四道门之后<em>才见面</em>。</h1>
+        <p class="page-lead">来源准入 → 硬性否决 → 加权评分 → 领域适配。前一层输出是后一层输入，任一层未通过都不进入推荐池。你看到的每一条，都能反查到它的通过理由与分数构成。</p>
+      </div>
+
+      <ol class="pipeline">
+        <li class="pipeline-step">
+          <span class="step-index">01</span>
+          <div><h2>来源准入</h2><p>A 级政府/监管/稿源名单/同行评议期刊/官方统计；B 级行业协会白皮书、主流媒体原创、可识别专家博客；C 级企业官网/产品博客/商业报告；D 级匿名、无法追溯、低质聚合、历史违规或利益冲突无法验证。D 不进池，C 单批最多 3 条。</p></div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-index">02</span>
+          <div><h2>硬性否决</h2><p>正文过短、标题党且无事实增量、实质信息占比 &lt; 30%、同 URL/标题相似度 &gt; 90%、同一事件无新增事实、超出领域时效窗口、D 级来源、来源条款禁止翻译/衍生作品——命中即丢。</p></div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-index">03</span>
+          <div><h2>加权评分</h2><p>来源等级 25%、信息密度 25%、事实可核验性 20%、时效性 15%、领域代表性 15%。总分低于 3.0 不进池。阈值可配置，但不设无下限。</p></div>
+        </li>
+        <li class="pipeline-step">
+          <span class="step-index">04</span>
+          <div><h2>领域适配</h2><p>科技/商业/产品/编程提高时效权重至 25%、来源降至 20%；科学/健康/环境提高事实权重至 30%；人文/历史/艺术/生活方式把时效降至 5%，信息密度与领域代表性各提至 30%。</p></div>
+        </li>
+      </ol>
+
+      <section class="audit-section" aria-labelledby="audit-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">AUDIT TRAIL</p>
+            <h2 id="audit-title">本快照的质检台账</h2>
+            <p>演示数据：36 条候选全部通过四层筛选；9 条被否决样本用于展示原因记录。真实运营时应接入后端日志。</p>
+          </div>
+          <div class="audit-stats">
+            <div><strong id="audit-passed">—</strong><span>通过</span></div>
+            <div><strong id="audit-rejected">—</strong><span>否决样本</span></div>
+            <div><strong id="audit-rate">—</strong><span>通过率</span></div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption>被否决样本与原因（演示）</caption>
+            <thead><tr><th>条目</th><th>来源 / 等级</th><th>领域</th><th>分数</th><th>否决原因</th></tr></thead>
+            <tbody id="audit-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="audit-section">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">SOURCE HEALTH</p>
+            <h2>来源通过率监控</h2>
+            <p>连续 30 天通过率 &gt; 90% 复核等级是否过宽；&lt; 10% 考虑降级。整体通过率 &gt; 70% 说明筛选过松，&lt; 15% 说明来源池过窄。</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption>演示来源的 30 天通过率</caption>
+            <thead><tr><th>来源</th><th>提交</th><th>通过</th><th>通过率</th><th>监控标记</th></tr></thead>
+            <tbody id="source-health-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="audit-section" aria-labelledby="trace-title">
+        <div class="section-heading">
+          <div>
+            <p class="section-kicker">TRACEABILITY</p>
+            <h2 id="trace-title">抽检 10 条：分数从哪来</h2>
+            <p>来源等级、信息密度、事实可核验、时效、领域代表性五项加权；同时显示摘要字数上限与是否进入“经典/长尾”。</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table trace-table">
+            <caption>推荐池加权分与摘要边界</caption>
+            <thead><tr><th>条目</th><th>领域</th><th>来源</th><th>分数</th><th>摘要字数</th><th>时效</th><th>标签</th></tr></thead>
+            <tbody id="trace-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="method-notes">
+        <div class="section-heading compact">
+          <div><p class="section-kicker">HOW THE BATCH IS DRAWN</p><h2>抽样不是纯随机</h2></div>
+        </div>
+        <div class="notes-grid">
+          <div class="note-block"><h3>领域优先</h3><p>先从未覆盖领域各抽 1 条，尽量达到 8 个领域，再按分数加权填充。同一领域最多 3 条，同一二级标签最多 1 条。</p></div>
+          <div class="note-block"><h3>权重修正</h3><p>已读内容乘以 0.35，上一批内容乘以 0.15，同来源重复出现按 0.55 递减；分数越高权重越高，但不是“高分必出”。</p></div>
+          <div class="note-block"><h3>来源错位</h3><p>选完后重排，尽量不让同一来源连续出现 3 次；若约束无法满足，保留可用结果并在批次说明中提示，不用重复内容凑数。</p></div>
+          <div class="note-block"><h3>边界清楚</h3><p>某领域不足时自动跳过；“不再推荐类似内容”写入 localStorage，只影响本机推荐，不影响导出。</p></div>
+        </div>
+      </section>
+
+      <details class="config-details">
+        <summary>查看本页实际使用的关键配置</summary>
+        <dl class="config-list" id="config-list"></dl>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div class="footer-brand">
+        <span class="brand-mark small" aria-hidden="true">拾</span>
+        <p><strong>拾页</strong><br>跨领域优质内容随机推荐站</p>
+      </div>
+      <p class="footer-legal">本站仅提供中文摘录提炼摘要与来源索引，不替代原文，不默认搬运全文。内容版权归原作者所有；原文链接、作者、发布日期、语言与授权状态逐条保留。演示快照仅用于产品原型，公开运营前须完成逐源许可核查与必要资质评估。</p>
+      <div class="footer-meta"><span>STATIC DEMO · 2026.11.16</span><a href="#top">回到顶部 ↑</a></div>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <div id="export-overlay" class="export-overlay" hidden>
+    <div class="export-dialog" role="dialog" aria-modal="true" aria-labelledby="export-title">
+      <p class="section-kicker">EXPORT STUDIO</p>
+      <h2 id="export-title">正在准备这一页</h2>
+      <p class="export-status" id="export-status">正在准备字体…</p>
+      <div class="export-progress" aria-hidden="true"><span></span></div>
+      <p class="export-detail" id="export-detail">导出为独立模板，不会截取卡片，也不会影响列表与已读状态。</p>
+      <div class="export-error" id="export-error" hidden>
+        <p id="export-error-copy"></p>
+        <div class="export-error-actions">
+          <button type="button" class="button button-primary" id="export-retry">重试</button>
+          <button type="button" class="button button-quiet" id="export-print">改用打印</button>
+        </div>
+      </div>
+      <button type="button" class="export-close" id="export-close" aria-label="关闭导出面板">×</button>
+    </div>
+  </div>
+
+  <div id="export-stage" aria-hidden="true"></div>
+  <div id="print-root" aria-hidden="true"></div>
+
+  <script src="data/fallback-data.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/qrcode.js"></script>
+  <script src="assets/js/data-loader.js"></script>
+  <script src="assets/js/quality.js"></script>
+  <script src="assets/js/recommender.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/custom-tags.js"></script>
+  <script src="assets/js/pdf-lite.js"></script>
+  <script src="assets/js/export-styles.js"></script>
+  <script src="assets/js/exporter.js"></script>
+  <script src="assets/js/ui.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

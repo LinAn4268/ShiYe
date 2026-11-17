@@ -1,0 +1,238 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-11-16",
+  "note": "一级领域与二级标签独立配置；增删领域或标签后，文章数据中不再匹配的标签会自动隐藏。",
+  "categories": [
+    {
+      "id": "tech-ai",
+      "name": "科技与AI",
+      "short": "科技",
+      "en": "Technology & AI",
+      "accent": "#a6402d",
+      "description": "人工智能、计算基础设施、网络安全与前沿工程。",
+      "max_age_days": 90,
+      "classic_after_days": null,
+      "tags": ["人工智能", "后量子密码", "芯片", "网络安全", "航天科技", "人机交互"]
+    },
+    {
+      "id": "business-finance",
+      "name": "商业与金融",
+      "short": "商业",
+      "en": "Business & Finance",
+      "accent": "#9a6a1f",
+      "description": "公司、市场、劳动、个人理财与监管变化。",
+      "max_age_days": 90,
+      "classic_after_days": null,
+      "tags": ["个人理财", "就业", "中小企业", "市场", "金融监管", "创业"]
+    },
+    {
+      "id": "design-creative",
+      "name": "设计与创意",
+      "short": "设计",
+      "en": "Design & Creative",
+      "accent": "#b04a6a",
+      "description": "服务设计、用户体验、视觉文化与创意工具。",
+      "max_age_days": 180,
+      "classic_after_days": 365,
+      "tags": ["服务设计", "用户体验", "无障碍", "品牌", "创意工具", "公共设计"]
+    },
+    {
+      "id": "science-nature",
+      "name": "科学与自然",
+      "short": "科学",
+      "en": "Science & Nature",
+      "accent": "#2f6f63",
+      "description": "天文、地球系统、生态与基础科学的新发现。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["天文", "地球观测", "生态", "物理", "气候科学", "海洋"]
+    },
+    {
+      "id": "humanities-history",
+      "name": "人文与历史",
+      "short": "人文",
+      "en": "Humanities & History",
+      "accent": "#6d5138",
+      "description": "历史材料、档案、思想与人类经验的长时段回望。",
+      "max_age_days": null,
+      "classic_after_days": 730,
+      "tags": ["航天史", "摄影史", "档案", "考古", "城市史", "口述史"]
+    },
+    {
+      "id": "education-learning",
+      "name": "教育与学习",
+      "short": "教育",
+      "en": "Education & Learning",
+      "accent": "#476a8a",
+      "description": "开放教育资源、教学法与学习科学。",
+      "max_age_days": 180,
+      "classic_after_days": 365,
+      "tags": ["开放教育资源", "高等教育", "教学工具", "学习科学", "职业教育", "评估"]
+    },
+    {
+      "id": "health-wellbeing",
+      "name": "健康与身心",
+      "short": "健康",
+      "en": "Health & Wellbeing",
+      "accent": "#7a4b63",
+      "description": "公共卫生、身体活动、心理状态与照护实践。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["心理健康", "身体活动", "公共卫生", "传染病", "自我照护", "气候健康", "睡眠"]
+    },
+    {
+      "id": "environment-sustainability",
+      "name": "环境与可持续",
+      "short": "环境",
+      "en": "Environment & Sustainability",
+      "accent": "#4b6b3a",
+      "description": "气候、生物多样性、资源与可持续转型。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["气候资金", "生物多样性", "红树林", "能源", "循环经济", "土地利用"]
+    },
+    {
+      "id": "product-operations",
+      "name": "产品与运营",
+      "short": "产品",
+      "en": "Product & Operations",
+      "accent": "#8a5a2b",
+      "description": "产品策略、服务交付、数字身份与组织运营。",
+      "max_age_days": 90,
+      "classic_after_days": null,
+      "tags": ["数字身份", "产品策略", "服务标准", "交付", "运营", "平台"]
+    },
+    {
+      "id": "programming-open-source",
+      "name": "编程与开源",
+      "short": "编程",
+      "en": "Programming & Open Source",
+      "accent": "#3c5a78",
+      "description": "语言演进、开发者工具、开源治理与工程实践。",
+      "max_age_days": 90,
+      "classic_after_days": null,
+      "tags": ["Python", "开源治理", "开发者生态", "版本发布", "Web平台", "性能"]
+    },
+    {
+      "id": "society-policy",
+      "name": "社会与政策",
+      "short": "社会",
+      "en": "Society & Policy",
+      "accent": "#8b4a3a",
+      "description": "公共政策、就业、司法与社会福利的制度变化。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["就业政策", "司法", "移民", "社会福利", "公共治理", "青年"]
+    },
+    {
+      "id": "arts-culture",
+      "name": "艺术与文化",
+      "short": "艺术",
+      "en": "Arts & Culture",
+      "accent": "#7b4a7a",
+      "description": "展览、民俗、建筑绘图、录音档案与文化遗产。",
+      "max_age_days": null,
+      "classic_after_days": 730,
+      "tags": ["民俗", "展览", "世界遗产", "建筑绘图", "录音档案", "博物馆"]
+    },
+    {
+      "id": "lifestyle",
+      "name": "生活方式",
+      "short": "生活",
+      "en": "Lifestyle",
+      "accent": "#8a6a3a",
+      "description": "日常照护、旅行方式、户外与生活节奏。",
+      "max_age_days": null,
+      "classic_after_days": 365,
+      "tags": ["自我照护", "旅行", "户外", "饮食", "居家", "节庆"]
+    },
+    {
+      "id": "career-growth",
+      "name": "职业与成长",
+      "short": "职业",
+      "en": "Career & Growth",
+      "accent": "#58634a",
+      "description": "职业路径、技能形成、组织人才与个人成长。",
+      "max_age_days": 180,
+      "classic_after_days": 365,
+      "tags": ["职业路径", "航天人才", "技能", "招聘", "领导力", "导师"]
+    },
+    {
+      "id": "media-communication",
+      "name": "媒体与传播",
+      "short": "媒体",
+      "en": "Media & Communication",
+      "accent": "#7a4d3a",
+      "description": "平台治理、AI 与媒体、版权与知识共享。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["平台治理", "AI与媒体", "版权", "新闻业", "知识共享", "开放网络"]
+    },
+    {
+      "id": "games-entertainment",
+      "name": "游戏与娱乐",
+      "short": "游戏",
+      "en": "Games & Entertainment",
+      "accent": "#6a4c8a",
+      "description": "游戏史、互动娱乐、音乐档案与保存实践。",
+      "max_age_days": 3650,
+      "classic_after_days": 1095,
+      "tags": ["游戏史", "游戏音乐", "保存", "互动娱乐", "博物馆", "玩家文化"]
+    },
+    {
+      "id": "travel-geography",
+      "name": "旅行与地理",
+      "short": "旅行",
+      "en": "Travel & Geography",
+      "accent": "#3f6b6a",
+      "description": "国家公园、地质景观、目的地与空间经验。",
+      "max_age_days": 365,
+      "classic_after_days": 730,
+      "tags": ["国家公园", "阿拉斯加", "夏威夷", "地质", "目的地", "步道"]
+    },
+    {
+      "id": "food-agriculture",
+      "name": "美食与农业",
+      "short": "食物",
+      "en": "Food & Agriculture",
+      "accent": "#7a6a2a",
+      "description": "农业生产、食品贸易、土壤与饮食选择。",
+      "max_age_days": 180,
+      "classic_after_days": 365,
+      "tags": ["有机农业", "食品贸易", "农业政策", "土壤", "饮食", "供应链"]
+    },
+    {
+      "id": "architecture-cities",
+      "name": "建筑与城市",
+      "short": "建筑",
+      "en": "Architecture & Cities",
+      "accent": "#6a5a4a",
+      "description": "建筑史、城市更新、公共空间与遗产保护。",
+      "max_age_days": null,
+      "classic_after_days": 730,
+      "tags": ["建筑史", "建筑绘图", "城市更新", "公共空间", "遗产保护", "住房", "基础设施"]
+    },
+    {
+      "id": "law-privacy",
+      "name": "法律与隐私",
+      "short": "法律",
+      "en": "Law & Privacy",
+      "accent": "#4a4a6a",
+      "description": "数字身份、数据保护、平台责任与消费者权益。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["数字身份", "数据保护", "网络安全", "平台责任", "消费者权益", "合规"]
+    },
+    {
+      "id": "future-frontier",
+      "name": "未来与前沿",
+      "short": "未来",
+      "en": "Future & Frontier",
+      "accent": "#2f5f7a",
+      "description": "量子技术、时间计量、深空与长期风险。",
+      "max_age_days": 180,
+      "classic_after_days": null,
+      "tags": ["量子技术", "时间计量", "深空", "生物科技", "气候适应", "长期主义"]
+    }
+  ]
+}
