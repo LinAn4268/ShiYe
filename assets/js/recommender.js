@@ -330,6 +330,7 @@
     canonicalUrl,
     normalizeText,
     titleSimilarity,
+    arrangeForSources,
     isStaleSource
   };
 })(window);

@@ -15,12 +15,13 @@ const data = {
   domains: read('domains.json'),
   sources: read('sources.json'),
   articles: read('articles.json'),
-  audit: read('audit.json')
+  audit: read('audit.json'),
+  freshArticles: read('fresh-articles.json')
 };
 
 const banner = `/*
  * 自动生成，请勿直接编辑。
- * 由 tools/build-fallback.mjs 从 data/domains.json、sources.json、articles.json、audit.json 打包。
+ * 由 tools/build-fallback.mjs 从 data/domains.json、sources.json、articles.json、audit.json、fresh-articles.json 打包。
  * 修改数据后运行：node tools/build-fallback.mjs
  */
 window.__KUAYU_DATA__ = ${JSON.stringify(data, null, 2)};

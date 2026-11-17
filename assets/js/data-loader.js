@@ -30,18 +30,25 @@
         sources: embedded.sources,
         articles: embedded.articles,
         audit: embedded.audit,
+        freshArticles: embedded.freshArticles || null,
         mode: 'embedded'
       };
     }
 
     try {
-      const [domains, sources, articles, audit] = await Promise.all([
+      const [domains, sources, articles, audit, freshArticles] = await Promise.all([
         fetchJson(config.dataFiles.domains, bust),
         fetchJson(config.dataFiles.sources, bust),
         fetchJson(config.dataFiles.articles, bust),
-        fetchJson(config.dataFiles.audit, bust)
+        fetchJson(config.dataFiles.audit, bust),
+        config.dataFiles.freshArticles
+          ? fetchJson(config.dataFiles.freshArticles, bust).catch((error) => {
+              console.warn('新内容池读取失败，刷新时将只使用主数据：', error);
+              return null;
+            })
+          : Promise.resolve(null)
       ]);
-      return { domains, sources, articles, audit, mode: 'http' };
+      return { domains, sources, articles, audit, freshArticles, mode: 'http' };
     } catch (error) {
       if (!embedded) throw error;
       console.warn('静态 JSON 读取失败，已回退到内嵌快照：', error);
@@ -50,6 +57,7 @@
         sources: embedded.sources,
         articles: embedded.articles,
         audit: embedded.audit,
+        freshArticles: embedded.freshArticles || null,
         mode: 'embedded'
       };
     }

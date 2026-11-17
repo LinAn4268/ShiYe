@@ -147,7 +147,8 @@ node tools/validate.cjs
 | 导出 | 独立离屏 DOM，不影响列表、筛选、已读状态和推荐池 |
 | 主题切换 | 深/浅色偏好写入 localStorage；导出模板始终强制浅色 |
 | 颜色预设 | 朱砂/靛蓝/松绿/琥珀，与明暗正交，偏好写入 localStorage |
-| 刷新内容 | 重新读取已发布数据文件并重建内容池；真正爬取由后端/Actions 完成 |
+| ☆ 感兴趣 | 标记保留卡片，刷新内容时不被剔除 |
+| 刷新内容 | 保留「★ 感兴趣」的卡片、剔除其余，从新内容池换入未出现过的新主题；可接后端爬取接口 |
 
 ### 2.4 前端模块
 
@@ -156,8 +157,9 @@ assets/js/config.js        权重、阈值、抽样参数、导出尺寸
 assets/js/data-loader.js   HTTP fetch；file:// 时回退 fallback-data.js
 assets/js/quality.js       四层筛选与加权评分
 assets/js/recommender.js   去重、分层/加权随机、已读/隐藏/上一批惩罚
-assets/js/storage.js       localStorage 封装
-assets/js/ui.js            渲染、筛选、事件、来源台账、审计表
+assets/js/storage.js       localStorage 封装（含感兴趣/已换入新内容集合）
+assets/js/custom-tags.js   用户自建标签规则引擎
+assets/js/ui.js            渲染、筛选、事件、感兴趣标记、来源台账、审计表
 assets/js/qrcode.js        自写 QR（Byte 模式，ECC H，v1–v20）
 assets/js/pdf-lite.js      自写最小 PDF（JPEG 页 + 元数据 + 链接注释）
 assets/js/exporter.js      导出模板、字体等待、图片预检、PNG/PDF、下载兜底
@@ -185,6 +187,7 @@ assets/js/export-styles.js 由 export.css 生成的内联 CSS
 │     ├─ quality.js
 │     ├─ recommender.js
 │     ├─ storage.js
+│     ├─ custom-tags.js
 │     ├─ ui.js
 │     ├─ qrcode.js
 │     ├─ pdf-lite.js
@@ -194,7 +197,8 @@ assets/js/export-styles.js 由 export.css 生成的内联 CSS
 ├─ data/
 │  ├─ domains.json              21 个一级领域与二级标签
 │  ├─ sources.json              来源登记 + 复核字段
-│  ├─ articles.json             36 条演示快照
+│  ├─ articles.json             36 条主内容池演示快照
+│  ├─ fresh-articles.json       28 条新内容池（刷新时换入，主题与主池不重复）
 │  ├─ audit.json                丢弃样本、来源通过率
 │  └─ fallback-data.js          自动生成，供 file:// 使用
 ├─ pipeline/
@@ -211,7 +215,10 @@ assets/js/export-styles.js 由 export.css 生成的内联 CSS
 └─ tools/
    ├─ build-fallback.mjs
    ├─ build-export-css.mjs
-   └─ validate.cjs
+   ├─ build-standalone.mjs
+   ├─ validate.cjs
+   ├─ test-custom-tags.cjs
+   └─ test-refresh.cjs
 ```
 
 ---
@@ -676,6 +683,8 @@ node --check assets/js/exporter.js
 node --check assets/js/qrcode.js
 node --check assets/js/custom-tags.js
 node --check assets/js/storage.js
+node --check assets/js/data-loader.js
+node --check assets/js/recommender.js
 ```
 
 ### 9.3 自定义标签测试
@@ -686,7 +695,15 @@ node tools/test-custom-tags.cjs
 
 9 项测试全部通过：创建与校验、重名拒绝、幂等打标签、领域范围、全部领域跨领域、删除移除、损坏数据退化、`countFor`、40 条上限。测试用 Node `vm` 加载 `custom-tags.js` 并注入 mock Store，零浏览器依赖。
 
-### 9.4 更新管道测试
+### 9.4 新刷新逻辑测试
+
+```bash
+node tools/test-refresh.cjs
+```
+
+5 项测试全部通过：新内容池 28 条全部通过四层质量筛选且 URL 唯一、感兴趣标记的增删与读取、已换入新内容 id 去重持久化、损坏数据退化、`arrangeForSources` 同源连续上限。零浏览器依赖。
+
+### 9.5 更新管道测试
 
 ```bash
 node pipeline/tests/pipeline.test.js
@@ -709,7 +726,7 @@ node pipeline/tests/pipeline.test.js
 
 真实网络、真实模型输出质量和跨机器锁不在本机验收范围内，见第 11 节。
 
-### 9.5 本机未完成的浏览器验收
+### 9.6 本机未完成的浏览器验收
 
 本机只有 Edge 157。无头模式因本机 crashpad/权限问题失败：
 
@@ -727,7 +744,7 @@ FATAL:mojo...platform_channel.cc:187 Check failed
 
 请在 Chrome / Safari / Edge 正常窗口中按第 9.5 节手工验收。本机只完成了静态逻辑、数据结构、QR 矩阵、PDF 文件结构和 CSS 约束校验。
 
-### 9.6 手工验收清单
+### 9.7 手工验收清单
 
 - [ ] 打开页面能看到 12 张随机卡片，不是骨架屏卡死。
 - [ ] 点“换一批”/按 `R` 能换，且尽量不重复上一批。
@@ -1169,25 +1186,30 @@ node tools/build-standalone.mjs
 
 ## 15. 内容刷新按钮
 
-首屏「换一批」旁边的**「刷新内容」**按钮用于更新**内容池本身**（区别于「换一批」只从现有池里重新抽样）。
+首屏「换一批」旁边的**「刷新内容」**按钮用于**换入与当前内容不同的新主题**（区别于「换一批」只从现有池里重新抽样）。配合每张卡片上的**「☆ 感兴趣」**按钮使用。
 
-### 15.1 点击后发生什么
+### 15.1 新逻辑：保留感兴趣，剔除其余，换入新内容
 
-1. 若 `APP_CONFIG.refresh.crawlApi` 已配置（后端爬取接口），先 `POST` 触发一次抓取；未配置则跳过（静态站点默认未配置）。
-2. 重新读取 4 个已发布的数据文件（`data/domains.json`、`sources.json`、`articles.json`、`audit.json`），并带时间戳参数绕过浏览器缓存。
-3. 对拉回的全部文章**重新套用自建标签规则**，再跑一遍来源准入与四层质量筛选，重建内容池。
-4. 自动抽取一批新内容，并更新页头「快照」日期；刷新期间按钮显示「正在刷新…」并禁用，完成后给出轻提示。
+每张卡片操作栏有一个「☆ 感兴趣」按钮（点击后变「★ 感兴趣」，再点取消）。点击「刷新内容」时：
 
-### 15.2 静态站的能力边界（重要）
+1. **保留**当前批次中所有标记了「★ 感兴趣」的卡片（位置也会保留，重排后仍在）。
+2. **剔除**当前批次中所有未标记「感兴趣」的卡片。
+3. 从**新内容池** `data/fresh-articles.json` 补入全新主题，把批次补足到 12 条。新内容池现有 28 条，全部来自 NASA / NIST 官方 RSS，主题与主内容池 36 条**完全不重复**，并已逐条通过四层质量筛选（公共领域来源、允许翻译、摘要不超硬上限）。
+4. 已换入过的新内容 id 记入 localStorage（`usedFreshIds`），**不会被反复换入**；池用尽时会如实提示，不拿旧内容凑数。
+5. 若 `APP_CONFIG.refresh.crawlApi` 已配置（后端爬取接口），先 `POST` 触发一次真实抓取并重读数据文件，把爬取到的新内容并入内容池与新内容池；未配置则使用预置新内容池。
+6. 刷新期间按钮显示「正在获取新内容…」并禁用，完成后轻提示「保留 X 条感兴趣，换入 Y 条新内容」。
 
-- **网页本身不爬外网。** 纯前端受 CORS、凭据与浏览器沙箱限制，不可能也不应该在浏览器里直接抓取来源站点；这既不符合来源许可核查流程，也无法遵守 robots / 频率限制。
-- 「刷新内容」读的是**已经由后端管道 / GitHub Actions 写好并发布的数据文件**。所以：真正的「爬取新主题」发生在服务端（`pipeline/update.js`，见第 12、13 章），刷新按钮负责把最新结果即时呈现出来。
-- 在 `file://` 单文件模式下，数据来自内嵌快照 `window.__KUAYU_DATA__`，此时刷新会重新套用规则并重新抽样，但**不会**凭空出现新条目——要看到新内容需重新生成内嵌快照（第 1 章）。
-- 想让刷新触发真实抓取：部署一个受控后端接口，把地址填入 `assets/js/config.js` 的 `refresh.crawlApi`。凭据只留在后端，前端不保存。
+### 15.2 「两者结合」：预置池 + 真实后端接口
 
-### 15.3 与换一批/筛选的关系
+- **开箱即用**：没有后端也能刷新出全新主题——靠的是预置新内容池 `data/fresh-articles.json`（静态数据文件，随站点一起发布）。
+- **接真实爬取**：部署一个受控后端接口，把地址填入 `assets/js/config.js` 的 `refresh.crawlApi`。前端只发 `POST` 信号、不保存任何凭据；抓取、许可核查、robots 遵守和频率限制都在后端完成。接口返回后，刷新会重新读取数据文件（`data/*.json` 带时间戳绕过缓存），把后端新抓取的内容纳入候选。
+- **网页本身不爬外网。** 纯前端受 CORS、凭据与浏览器沙箱限制，不可能也不应该在浏览器里直接抓取来源站点；真实爬取永远在服务端（`pipeline/update.js`，见第 12、13 章）。
 
-刷新保留当前的领域/标签筛选、已读与「不再推荐」状态，也不触碰导出流程；它只替换内容池与当前批次。已读/隐藏记录仍按文章 id 匹配，更新后的新文章默认是未读。
+### 15.3 与换一批 / 筛选 / 本地状态的关系
+
+- 「换一批」仍是从**当前内容池**重新抽样；「刷新内容」是**换掉未感兴趣的卡片并补入新主题**，两者互不替代。
+- 刷新保留当前的领域 / 标签筛选、已读与「不再推荐」状态，也不触碰导出流程；「★ 感兴趣」与「已换入新内容」记录都存于 localStorage，筛选与导出都不会丢失。
+- 不存在的新内容池条目时（例如 `file://` 模式未重新生成内嵌快照），会退回主内容池抽样并明确提示；要看到预置新内容，请重新生成内嵌快照（第 1 章）或用 HTTP 方式发布。
 
 ---
 

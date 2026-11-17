@@ -24,7 +24,8 @@
       domains: 'data/domains.json',
       sources: 'data/sources.json',
       articles: 'data/articles.json',
-      audit: 'data/audit.json'
+      audit: 'data/audit.json',
+      freshArticles: 'data/fresh-articles.json'
     },
     batchSize: 12,
     minCategories: 8,
@@ -78,7 +79,10 @@
     // 配置后端地址后，会先 POST 触发真实爬取，再重读数据。静态前端不保存任何爬取凭据。
     refresh: {
       crawlApi: '',
-      cacheBust: true
+      cacheBust: true,
+      // 点击“刷新内容”时：保留当前批次标记“感兴趣”的卡片，剔除其余，并从 freshArticles
+      // 预置新内容池（或 crawlApi 返回的新内容）补足到 batchSize。已用过的新内容不再重复。
+      keepInterested: true
     },
     export: {
       pngScale: 2,

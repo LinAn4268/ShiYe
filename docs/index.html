@@ -1054,6 +1054,13 @@ kbd {
 }
 .action-button:hover, .action-button.is-active { color: var(--ink); border-color: var(--line-strong); background: var(--paper-soft); }
 .action-button.is-read { color: var(--olive); border-color: var(--olive); }
+.interested-button { font-variant-numeric: tabular-nums; }
+.interested-button.is-interested {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  font-weight: 600;
+}
 .action-spacer { margin-left: auto; }
 
 .card-menu-wrap { position: relative; margin-left: auto; }
@@ -2245,7 +2252,7 @@ kbd {
               <span>换一批</span>
               <span class="button-arrow" aria-hidden="true">→</span>
             </button>
-            <button type="button" class="button button-quiet" id="refresh-button" title="重新读取最新内容数据，更新内容池">刷新内容</button>
+            <button type="button" class="button button-quiet" id="refresh-button" title="保留标记「感兴趣」的内容，把其余内容换成新爬取的主题">刷新内容</button>
             <button type="button" class="button button-quiet" id="explain-button">推荐规则</button>
             <span class="key-hint">按 <kbd>R</kbd> 也可以</span>
           </div>
@@ -2562,7 +2569,7 @@ kbd {
   <script>
 /*
  * 自动生成，请勿直接编辑。
- * 由 tools/build-fallback.mjs 从 data/domains.json、sources.json、articles.json、audit.json 打包。
+ * 由 tools/build-fallback.mjs 从 data/domains.json、sources.json、articles.json、audit.json、fresh-articles.json 打包。
  * 修改数据后运行：node tools/build-fallback.mjs
  */
 window.__KUAYU_DATA__ = {
@@ -4859,6 +4866,998 @@ window.__KUAYU_DATA__ = {
         "flag": "low"
       }
     ]
+  },
+  "freshArticles": {
+    "version": "1.0.0",
+    "snapshot_at": "2026-11-17T15:00:00+08:00",
+    "note": "预置新内容池：条目均摘录自 NASA 与 NIST 官方 RSS 公开条目（公共领域美国政府作品），标题与摘要为摘录提炼，不是全文翻译。用于静态站首次点击“刷新内容”时立刻换入新主题；配置后端 crawlApi 后可改用真实爬取结果。真实运营仍需逐源复核许可与时效。",
+    "articles": [
+      {
+        "id": "f01",
+        "title_original": "APOD: 2026 November 17 – Milky Way versus Aurora",
+        "title_zh": "天文每日一图：银河与极光同框",
+        "summary_zh": "NASA 天文每日一图展示了两道几乎垂直的巨大光弧：左侧是遥远银河系的中心带，右侧是地球高层大气中由太阳高能粒子激发、仅存在数小时的极光带。照片于一个月前在挪威北部 Kvaløya 拍摄，画面中还能看到北斗七星与仙女座星系。",
+        "url": "https://science.nasa.gov/image-article/apod-2026-november-17-milky-way-versus-aurora/",
+        "source_id": "nasa",
+        "source_name": "NASA",
+        "source_domain": "science.nasa.gov",
+        "author": "Robert Nemiroff, Jerry Bonnell 等（NASA APOD）",
+        "published_at": "2026-11-17",
+        "category": "science-nature",
+        "tags": [
+          "天文"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品；摄影署名保留）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-apod-2026-11-17-milky-way-versus-aurora",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1500,
+        "info_ratio": 0.68,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nasa-apod-20261117"
+      },
+      {
+        "id": "f02",
+        "title_original": "Tossing Fireworks from Cloud to Cloud",
+        "title_zh": "从太空看南海雷暴：云层间“抛掷烟火”",
+        "summary_zh": "NASA 地球观测站记录了国际空间站 2026 年 10 月 28 日飞越南海时的夜景：雷暴云顶出现多个被闪电照亮的“过冲云顶”，渔船蓝光与海上天然气火炬散落各处。文中引用数据称地球任一时刻约有 2000 场雷暴，每秒近 60 次闪电、每日约 500 万次。",
+        "url": "https://science.nasa.gov/earth/earth-observatory/tossing-fireworks-from-cloud-to-cloud/",
+        "source_id": "nasa",
+        "source_name": "NASA Earth Observatory",
+        "source_domain": "science.nasa.gov",
+        "author": "Adam Voiland",
+        "published_at": "2026-10-28",
+        "category": "science-nature",
+        "tags": [
+          "气候科学",
+          "地球观测"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-eo-tossing-fireworks-2026-10-28",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1900,
+        "info_ratio": 0.72,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nasa-south-china-sea-lightning-20261028"
+      },
+      {
+        "id": "f03",
+        "title_original": "Perseverance Update: The Ghostly Rocks of ‘Idubi’ — Bright Remnants of Aqueous Systems from Long Ago",
+        "title_zh": "毅力号在“Idubi”区发现古老水系统的浅色硅质岩",
+        "summary_zh": "NASA 毅力号火星车在耶泽罗陨石坑外的 Idubi 区发现一组异常明亮的浅色岩石。SuperCam 仪器数据确认其并非火成岩，而是富含水合硅岩。水合硅岩可在热液、成土与地下水等多种含水环境中形成，并具有保存微化石的潜力，团队已启动近距离科学观测。",
+        "url": "https://science.nasa.gov/blog/perseverance-update-the-ghostly-rocks-of-idubi-bright-remnants-of-aqueous-systems-from-long-ago/",
+        "source_id": "nasa",
+        "source_name": "NASA Science",
+        "source_domain": "science.nasa.gov",
+        "author": "Candice Bedford（普渡大学研究科学家）",
+        "published_at": "2026-11-16",
+        "category": "science-nature",
+        "tags": [
+          "天文"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-perseverance-idubi-2026-11-16",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1600,
+        "info_ratio": 0.7,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nasa-perseverance-idubi-20261116"
+      },
+      {
+        "id": "f04",
+        "title_original": "A Collage Showing 49 Drill Holes Made by NASA’s Curiosity Mars Rover",
+        "title_zh": "好奇号火星车 49 个钻孔样本拼图公布",
+        "summary_zh": "NASA 公布好奇号火星车截至 2026 年 11 月钻取的 49 个钻孔拼图。每个钻孔直径约 16 毫米，由机械臂末端的 MAHLI 相机拍摄；钻取的粉末样本被送入车体内部仪器分析成分。好奇号由 JPL 建造，MAHLI 由 Malin Space Science Systems 制造。",
+        "url": "https://science.nasa.gov/photojournal/a-collage-showing-49-drill-holes-made-by-nasas-curiosity-mars-rover/",
+        "source_id": "nasa",
+        "source_name": "NASA Photojournal",
+        "source_domain": "science.nasa.gov",
+        "author": "NASA/JPL-Caltech/MSSS",
+        "published_at": "2026-11-16",
+        "category": "science-nature",
+        "tags": [
+          "天文"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-curiosity-49-drill-holes-2026-11-16",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1200,
+        "info_ratio": 0.66,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nasa-curiosity-49-hole-collage"
+      },
+      {
+        "id": "f05",
+        "title_original": "NASA Receives 16th Consecutive ‘Clean’ Financial Audit Opinion",
+        "title_zh": "NASA 连续第 16 年获得“无保留”财务审计意见",
+        "summary_zh": "NASA 宣布其 2026 财年财务报表连续第 16 年获得外部审计师的无保留意见，符合联邦机构公认会计原则。2026 财年机构完成了 Artemis II 绕月试飞、提前发射南希·格雷斯·罗曼太空望远镜，并首次实现 X-59 静音超音速飞机超音速飞行。",
+        "url": "https://www.nasa.gov/news-release/nasa-receives-16th-consecutive-clean-financial-audit-opinion/",
+        "source_id": "nasa",
+        "source_name": "NASA News Release",
+        "source_domain": "www.nasa.gov",
+        "author": "George Alderman / Jennifer Dooren",
+        "published_at": "2026-11-16",
+        "category": "business-finance",
+        "tags": [
+          "金融监管"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-clean-audit-16-2026-11-16",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1700,
+        "info_ratio": 0.7,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nasa-fy2026-clean-audit"
+      },
+      {
+        "id": "f06",
+        "title_original": "Sentinel-6B in Orbit Around Earth",
+        "title_zh": "Sentinel-6B 海面高度参考卫星进入轨道",
+        "summary_zh": "NASA 发布 Sentinel-6B 卫星在轨示意图。该卫星将成为其他海面高度观测任务的参考卫星，用于长期、连续地测量全球海面高度。图中展示了卫星的太阳能板与科学载荷，图像署名为 NASA/JPL-Caltech。",
+        "url": "https://science.nasa.gov/photojournal/sentinel-6b-in-orbit-around-earth/",
+        "source_id": "nasa",
+        "source_name": "NASA Photojournal",
+        "source_domain": "science.nasa.gov",
+        "author": "NASA/JPL-Caltech",
+        "published_at": "2026-11-16",
+        "category": "science-nature",
+        "tags": [
+          "地球观测",
+          "海洋"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-sentinel-6b-2026-11-16",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1100,
+        "info_ratio": 0.64,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nasa-sentinel-6b-orbit"
+      },
+      {
+        "id": "f07",
+        "title_original": "Contractor to Civil Servant: NASA Welcomes Jim Mirandy",
+        "title_zh": "从承包商到文职：NASA 留任资深质量保证专家",
+        "summary_zh": "NASA 斯坦尼斯航天中心将工作 30 年的承包商员工 Jim Mirandy 转为文职质量保证专家，以恢复机构内部核心技术能力。他负责火箭推进试验的安全与质量、密闭呼叫调查与自愿保护计划，并曾创办低温与高压培训课程，支持 Artemis 登月计划。",
+        "url": "https://www.nasa.gov/centers-and-facilities/stennis/contractor-to-civil-servant-jim-mirandy/",
+        "source_id": "nasa",
+        "source_name": "NASA Stennis",
+        "source_domain": "www.nasa.gov",
+        "author": "NASA/Danny Nowlin",
+        "published_at": "2026-11-16",
+        "category": "career-growth",
+        "tags": [
+          "航天人才",
+          "职业路径"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-jim-mirandy-2026-11-16",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 2100,
+        "info_ratio": 0.68,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nasa-mirandy-civil-servant"
+      },
+      {
+        "id": "f08",
+        "title_original": "Thunderbirds in Formation",
+        "title_zh": "雷鸟飞行表演队掠过 NASA 航空节",
+        "summary_zh": "美国空军“雷鸟”飞行表演队在 2026 年 11 月 7 日 NASA 肯尼迪航天中心举办的首届 MAX POWER 航空航天节上进行编队飞越。该活动为纪念美国建国 250 周年，涵盖飞行与太空探索的过去、现在与未来。图片署名为 NASA/Brandon Hancock。",
+        "url": "https://www.nasa.gov/image-article/thunderbirds-in-formation/",
+        "source_id": "nasa",
+        "source_name": "NASA",
+        "source_domain": "www.nasa.gov",
+        "author": "NASA/Brandon Hancock",
+        "published_at": "2026-11-16",
+        "category": "lifestyle",
+        "tags": [
+          "节庆"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nasa.gov/feed/",
+        "guid": "nasa-thunderbirds-formation-2026-11-16",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 900,
+        "info_ratio": 0.6,
+        "density_score": 4,
+        "fact_score": 4,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nasa-max-power-airshow-2026"
+      },
+      {
+        "id": "f09",
+        "title_original": "NIST Study Shows How the Toxic Substances Mixed Into Fentanyl Vary Across the U.S. and Change Over Time",
+        "title_zh": "NIST 研究揭示芬太尼掺杂物地域差异与时间变化",
+        "summary_zh": "NIST 研究发现，混入芬太尼的有毒掺杂物在美国不同地区存在差异且随时间变化。及时向急救人员与执法部门通报本地毒品供应中的危险化学成分，有助于挽救生命。",
+        "url": "https://www.nist.gov/news-events/news/2026/10/nist-study-shows-how-toxic-substances-mixed-fentanyl-vary-across-us-and",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-10-08",
+        "category": "health-wellbeing",
+        "tags": [
+          "公共卫生"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-fentanyl-adulterants-2026-10-08",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1600,
+        "info_ratio": 0.68,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-fentanyl-adulterants-study"
+      },
+      {
+        "id": "f10",
+        "title_original": "Physicist Jun Ye Wins Wolf Prize in Physics",
+        "title_zh": "物理学家 Jun Ye 获沃尔夫物理学奖",
+        "summary_zh": "NIST 物理学家 Jun Ye 获得沃尔夫物理学奖，获奖理由为其在“超冷原子系统控制方面具有变革性、广泛适用性的进展”。该奖项表彰其在精密测量与量子科学领域的长期贡献。",
+        "url": "https://www.nist.gov/news-events/news/2026/10/physicist-jun-ye-wins-wolf-prize-physics",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-10-05",
+        "category": "science-nature",
+        "tags": [
+          "物理"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-jun-ye-wolf-prize-2026-10-05",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1500,
+        "info_ratio": 0.66,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-jun-ye-wolf-prize"
+      },
+      {
+        "id": "f11",
+        "title_original": "NIST Awards More Than $1.7 Million to Support Cybersecurity Workforce Development Across 8 States",
+        "title_zh": "NIST 拨款逾 170 万美元支持 8 州网络安全人才培养",
+        "summary_zh": "NIST 向 8 个州的网络安全人才发展项目拨款超过 170 万美元。项目针对当地网络安全人力需求，提供实习、学徒制与动手实践等学习机会。",
+        "url": "https://www.nist.gov/news-events/news/2026/09/nist-awards-more-17-million-support-cybersecurity-workforce-development",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-09-18",
+        "category": "career-growth",
+        "tags": [
+          "技能",
+          "招聘"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-cyber-workforce-1.7m-2026-09-18",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1400,
+        "info_ratio": 0.65,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-cyber-workforce-grants-2026"
+      },
+      {
+        "id": "f12",
+        "title_original": "NIST Awards More Than $30 Million for MEP Centers in 11 States and Puerto Rico",
+        "title_zh": "NIST 向 11 州及波多黎各 MEP 中心拨款逾 3000 万美元",
+        "summary_zh": "NIST 宣布向 11 个州和波多黎各的制造业扩展伙伴关系（MEP）中心拨款超过 3000 万美元，帮助中小型制造商加快采用先进制造技术。",
+        "url": "https://www.nist.gov/news-events/news/2026/09/nist-awards-more-30-million-mep-centers-11-states-and-puerto-rico",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-09-15",
+        "category": "business-finance",
+        "tags": [
+          "中小企业"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-mep-30m-2026-09-15",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1300,
+        "info_ratio": 0.64,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-mep-centers-funding-2026"
+      },
+      {
+        "id": "f13",
+        "title_original": "NIST Finalizes Guidelines on Protecting Online Identity and Access Tokens From Misuse",
+        "title_zh": "NIST 定稿在线身份与访问令牌防滥用指南",
+        "summary_zh": "NIST 发布最终版指南，帮助机构采取有效措施避免在线身份与访问令牌暴露给攻击者。指南聚焦令牌生命周期管理与滥用防护，可供组织在身份治理与合规体系中参考。",
+        "url": "https://www.nist.gov/news-events/news/2026/09/nist-finalizes-guidelines-protecting-online-identity-and-access-tokens",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-09-15",
+        "category": "law-privacy",
+        "tags": [
+          "数字身份",
+          "网络安全"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-identity-tokens-final-2026-09-15",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1700,
+        "info_ratio": 0.7,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-id-token-guidelines-final"
+      },
+      {
+        "id": "f14",
+        "title_original": "NIST-Developed Quantum Sensors Improve Nuclear Monitoring",
+        "title_zh": "NIST 研发的量子传感器改进核材料监测",
+        "summary_zh": "NIST 研发的新一代量子传感器通过新的 X 射线测量方法，使科学家能够更准确地监测发电厂与武器设施中的核材料。该技术面向核材料管控与防扩散场景。",
+        "url": "https://www.nist.gov/news-events/news/2026/09/nist-developed-quantum-sensors-improve-nuclear-monitoring",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-09-10",
+        "category": "future-frontier",
+        "tags": [
+          "量子技术"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-quantum-nuclear-monitoring-2026-09-10",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1600,
+        "info_ratio": 0.68,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-quantum-nuclear-monitoring"
+      },
+      {
+        "id": "f15",
+        "title_original": "NIST Researchers Supersize Quantum Technology to Help Detect Faint Photons",
+        "title_zh": "NIST 放大量子技术以探测极微弱光子",
+        "summary_zh": "NIST 研究人员扩大了量子技术的尺度，帮助探测极微弱的光子信号。从量子计算到深层组织成像，能否捕捉每一个单光子对前沿技术至关重要。",
+        "url": "https://www.nist.gov/news-events/news/2026/08/nist-researchers-supersize-quantum-technology-help-detect-faint-photons",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-08-24",
+        "category": "future-frontier",
+        "tags": [
+          "量子技术"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-faint-photon-detection-2026-08-24",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1500,
+        "info_ratio": 0.67,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-faint-photon-detection"
+      },
+      {
+        "id": "f16",
+        "title_original": "NIST Researchers Correct Common Error Confounding Nanotech Measurements",
+        "title_zh": "NIST 纠正纳米技术测量中的常见误差",
+        "summary_zh": "NIST 科学家指出纳米技术测量中一个常见误差来源，并给出实用解决办法：在测试材料或开发产品前先考虑测量误差。该成果有助于提升纳米尺度测量的可重复性与准确性。",
+        "url": "https://www.nist.gov/news-events/news/2026/08/nist-researchers-correct-common-error-confounding-nanotech-measurements",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-08-06",
+        "category": "science-nature",
+        "tags": [
+          "物理"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-nanotech-measurement-error-2026-08-06",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1500,
+        "info_ratio": 0.66,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-nanotech-measurement-error"
+      },
+      {
+        "id": "f17",
+        "title_original": "‘Spooky’ Particles Transit DC Suburbs, a Step Toward a Quantum Network",
+        "title_zh": "纠缠粒子穿越华盛顿郊区，向量子网络迈进一步",
+        "summary_zh": "NIST 团队让脆弱的量子纠缠在现实环境条件下穿越华盛顿特区郊区，证明纠缠可在复杂真实场景中存活。这一成果被视为构建实用量子网络的重要一步。",
+        "url": "https://www.nist.gov/news-events/news/2026/08/spooky-particles-transit-dc-suburbs-step-toward-quantum-network",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-08-05",
+        "category": "future-frontier",
+        "tags": [
+          "量子技术"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-entanglement-dc-suburbs-2026-08-05",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1600,
+        "info_ratio": 0.68,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-quantum-network-dc"
+      },
+      {
+        "id": "f18",
+        "title_original": "NIST Receives New Patent for Microbe-Killing Water Heater",
+        "title_zh": "NIST 获杀微生物热水器新专利",
+        "summary_zh": "NIST 获得一项新专利，针对家用管道温水中细菌滋生的问题提出灭活方案。该发明面向家庭供水系统中潜在有害微生物的控制。",
+        "url": "https://www.nist.gov/news-events/news/2026/07/nist-receives-new-patent-microbe-killing-water-heater",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-07-14",
+        "category": "health-wellbeing",
+        "tags": [
+          "公共卫生"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-microbe-water-heater-2026-07-14",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1300,
+        "info_ratio": 0.62,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-microbe-killing-water-heater"
+      },
+      {
+        "id": "f19",
+        "title_original": "New Fabric Test Material Could Help Strengthen Domestic Supply Chain for Textiles and Clothing",
+        "title_zh": "NIST 新织物测试材料助强本土纺织供应链",
+        "summary_zh": "NIST 研发出一种织物测试材料，可帮助强化本土纺织与服装供应链。研究人员估计约 56% 的纺织品可回收或再利用，但大多数未能回到国内供应链。",
+        "url": "https://www.nist.gov/news-events/news/2026/07/new-fabric-test-material-could-help-strengthen-domestic-supply-chain",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-07-09",
+        "category": "environment-sustainability",
+        "tags": [
+          "循环经济"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-fabric-test-material-2026-07-09",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1500,
+        "info_ratio": 0.67,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-textile-supply-chain-test-material"
+      },
+      {
+        "id": "f20",
+        "title_original": "Arvind Raman Confirmed as the 18th NIST Director",
+        "title_zh": "Arvind Raman 确认出任 NIST 第 18 任局长",
+        "summary_zh": "Arvind Raman 获确认成为 NIST 第 18 任局长。他此前任普渡大学工程学院院长，将领导这一负责测量科学与标准的联邦机构。",
+        "url": "https://www.nist.gov/news-events/news/2026/07/arvind-raman-confirmed-18th-nist-director",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-07-06",
+        "category": "career-growth",
+        "tags": [
+          "领导力"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-arvind-raman-director-2026-07-06",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1200,
+        "info_ratio": 0.63,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-18th-director-raman"
+      },
+      {
+        "id": "f21",
+        "title_original": "NIST Launches Center to Drive the Manufacture of Quantum Technologies",
+        "title_zh": "NIST 成立量子技术制造工程中心",
+        "summary_zh": "NIST 宣布与 SRI International 达成协议，成立量子制造工程中心（QMEC），以推动量子技术的制造能力建设。中心将聚焦量子器件从实验室走向工程化生产。",
+        "url": "https://www.nist.gov/news-events/news/2026/06/nist-launches-center-drive-manufacture-quantum-technologies",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-06-29",
+        "category": "future-frontier",
+        "tags": [
+          "量子技术"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-qmec-2026-06-29",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1400,
+        "info_ratio": 0.65,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-quantum-manufacturing-center"
+      },
+      {
+        "id": "f22",
+        "title_original": "NIST Releases Technical Findings on What Caused the 2021 Partial Collapse of Champlain Towers South",
+        "title_zh": "NIST 发布 2021 年 Champlain Towers South 局部倒塌技术结论",
+        "summary_zh": "NIST 发布对 2021 年 Champlain Towers South 公寓楼局部倒塌的技术调查结论。团队在事故发生数天后启动调查，检视了两打可能导致倒塌起始位置与原因的场景。",
+        "url": "https://www.nist.gov/news-events/news/2026/06/nist-releases-technical-findings-what-caused-2021-partial-collapse",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-06-22",
+        "category": "architecture-cities",
+        "tags": [
+          "基础设施"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-champlain-towers-collapse-2026-06-22",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 2200,
+        "info_ratio": 0.72,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-champlain-towers-collapse-findings"
+      },
+      {
+        "id": "f23",
+        "title_original": "NIST Expands Its Library of ‘Chemical Fingerprints’ to Identify Unknown Substances",
+        "title_zh": "NIST 扩充“化学指纹”库以识别未知物质",
+        "summary_zh": "NIST 扩充其“化学指纹”库，帮助研究人员与制造商识别食品、药品、化妆品、环境样本、体液、法医证据乃至太空岩石中的未知化合物。",
+        "url": "https://www.nist.gov/news-events/news/2026/06/nist-expands-its-library-chemical-fingerprints-identify-unknown-substances",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-06-09",
+        "category": "science-nature",
+        "tags": [
+          "物理"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-chemical-fingerprints-2026-06-09",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1600,
+        "info_ratio": 0.68,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-chemical-fingerprint-library"
+      },
+      {
+        "id": "f24",
+        "title_original": "New AI Model Shows How to Evacuate for Fires One Safe Step at a Time",
+        "title_zh": "新 AI 模型可逐步规划火灾安全疏散路线",
+        "summary_zh": "NIST 主导的团队开发出一种新 AI 模型，可在单层平面图中识别火灾时的安全疏散路线，多层建筑版本正在开发中。研究面向建筑火灾中的人员安全引导。",
+        "url": "https://www.nist.gov/news-events/news/2026/06/new-ai-model-shows-how-evacuate-fires-one-safe-step-time",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-06-04",
+        "category": "health-wellbeing",
+        "tags": [
+          "公共卫生"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-fire-evacuation-ai-2026-06-04",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1600,
+        "info_ratio": 0.67,
+        "density_score": 5,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-fire-evacuation-ai-model"
+      },
+      {
+        "id": "f25",
+        "title_original": "NIST Researchers Discover a New Way to Whisk Alloys Together With Lasers",
+        "title_zh": "NIST 发现用激光“搅拌”合金的新方法",
+        "summary_zh": "NIST 研究人员发现用激光将合金搅合的新方法，并改进了 X 射线在 3D 打印过程中实时研究金属原子结构的方式，使研究者能够观察极端条件下材料的变化。",
+        "url": "https://www.nist.gov/news-events/news/2026/06/nist-researchers-discover-new-way-whisk-alloys-together-lasers",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-06-04",
+        "category": "science-nature",
+        "tags": [
+          "物理"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-laser-alloys-2026-06-04",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1500,
+        "info_ratio": 0.66,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-laser-alloy-mixing"
+      },
+      {
+        "id": "f26",
+        "title_original": "Self-Employed? Solopreneur? NIST Has a Cybersecurity Guide Just for You",
+        "title_zh": "个体经营者与单人创业者有专属网络安全指南",
+        "summary_zh": "NIST 发布面向个体经营者与单人创业者的网络安全指南，帮助其从 NIST 网络安全框架中按优先级选择并落实最适合自身业务的行动。",
+        "url": "https://www.nist.gov/news-events/news/2026/11/self-employed-solopreneur-nist-has-cybersecurity-guide-just-you",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-11-02",
+        "category": "business-finance",
+        "tags": [
+          "中小企业"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-solopreneur-cybersecurity-2026-11-02",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1400,
+        "info_ratio": 0.65,
+        "density_score": 4,
+        "fact_score": 5,
+        "representativeness": 5,
+        "clickbait": false,
+        "event_key": "nist-solopreneur-cybersecurity-guide"
+      },
+      {
+        "id": "f27",
+        "title_original": "NIST Joins White House Effort to Drive ‘A New Golden Age of Science’",
+        "title_zh": "NIST 加入白宫“科学新黄金时代”行动",
+        "summary_zh": "NIST 宣布加入白宫推动“科学新黄金时代”的努力。作为美国测量科学与标准的主导机构，NIST 表示其独特的定位有助于连接基础发现与产业能力。",
+        "url": "https://www.nist.gov/news-events/news/2026/10/nist-joins-white-house-effort-drive-new-golden-age-science",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-10-08",
+        "category": "society-policy",
+        "tags": [
+          "公共治理"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-golden-age-science-2026-10-08",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1400,
+        "info_ratio": 0.64,
+        "density_score": 4,
+        "fact_score": 4,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-golden-age-of-science"
+      },
+      {
+        "id": "f28",
+        "title_original": "NIST Provides Updates on National Construction Safety Team Activities",
+        "title_zh": "NIST 通报国家建筑安全团队工作进展",
+        "summary_zh": "NIST 通报国家建筑安全团队（NCST）活动进展。相关简报强调 NIST 通过自身专长以及与外部机构的合作和合同，在建筑安全调查中发挥作用。",
+        "url": "https://www.nist.gov/news-events/news/2026/09/nist-provides-updates-national-construction-safety-team-activities",
+        "source_id": "nist",
+        "source_name": "NIST",
+        "source_domain": "www.nist.gov",
+        "author": "Sarah Henderson",
+        "published_at": "2026-09-28",
+        "category": "architecture-cities",
+        "tags": [
+          "基础设施"
+        ],
+        "language": "en",
+        "license_status": "公共领域（美国政府作品）",
+        "license_url": "https://www.nist.gov/copyright",
+        "image_url": "",
+        "image_license": "未使用来源图片（CSS 占位）",
+        "translation_note": "中文标题与摘要为摘录提炼，非全文翻译；保留原文链接与署名。",
+        "is_read": false,
+        "fetched_at": "2026-11-17T15:00:00+08:00",
+        "feed_url": "https://www.nist.gov/news-events/news/rss.xml",
+        "guid": "nist-ncst-updates-2026-09-28",
+        "summary_method": "人工摘录提炼（抽取式要点 + 事实核对）",
+        "summary_generated_at": "2026-11-17T15:00:00+08:00",
+        "body_words": 1300,
+        "info_ratio": 0.63,
+        "density_score": 4,
+        "fact_score": 4,
+        "representativeness": 4,
+        "clickbait": false,
+        "event_key": "nist-ncst-activities-update"
+      }
+    ]
   }
 };
 
@@ -4891,7 +5890,8 @@ window.__KUAYU_DATA__ = {
       domains: 'data/domains.json',
       sources: 'data/sources.json',
       articles: 'data/articles.json',
-      audit: 'data/audit.json'
+      audit: 'data/audit.json',
+      freshArticles: 'data/fresh-articles.json'
     },
     batchSize: 12,
     minCategories: 8,
@@ -4945,7 +5945,10 @@ window.__KUAYU_DATA__ = {
     // 配置后端地址后，会先 POST 触发真实爬取，再重读数据。静态前端不保存任何爬取凭据。
     refresh: {
       crawlApi: '',
-      cacheBust: true
+      cacheBust: true,
+      // 点击“刷新内容”时：保留当前批次标记“感兴趣”的卡片，剔除其余，并从 freshArticles
+      // 预置新内容池（或 crawlApi 返回的新内容）补足到 batchSize。已用过的新内容不再重复。
+      keepInterested: true
     },
     export: {
       pngScale: 2,
@@ -5467,18 +6470,25 @@ window.__KUAYU_DATA__ = {
         sources: embedded.sources,
         articles: embedded.articles,
         audit: embedded.audit,
+        freshArticles: embedded.freshArticles || null,
         mode: 'embedded'
       };
     }
 
     try {
-      const [domains, sources, articles, audit] = await Promise.all([
+      const [domains, sources, articles, audit, freshArticles] = await Promise.all([
         fetchJson(config.dataFiles.domains, bust),
         fetchJson(config.dataFiles.sources, bust),
         fetchJson(config.dataFiles.articles, bust),
-        fetchJson(config.dataFiles.audit, bust)
+        fetchJson(config.dataFiles.audit, bust),
+        config.dataFiles.freshArticles
+          ? fetchJson(config.dataFiles.freshArticles, bust).catch((error) => {
+              console.warn('新内容池读取失败，刷新时将只使用主数据：', error);
+              return null;
+            })
+          : Promise.resolve(null)
       ]);
-      return { domains, sources, articles, audit, mode: 'http' };
+      return { domains, sources, articles, audit, freshArticles, mode: 'http' };
     } catch (error) {
       if (!embedded) throw error;
       console.warn('静态 JSON 读取失败，已回退到内嵌快照：', error);
@@ -5487,6 +6497,7 @@ window.__KUAYU_DATA__ = {
         sources: embedded.sources,
         articles: embedded.articles,
         audit: embedded.audit,
+        freshArticles: embedded.freshArticles || null,
         mode: 'embedded'
       };
     }
@@ -5980,6 +6991,7 @@ window.__KUAYU_DATA__ = {
     canonicalUrl,
     normalizeText,
     titleSimilarity,
+    arrangeForSources,
     isStaleSource
   };
 })(window);
@@ -6021,7 +7033,34 @@ window.__KUAYU_DATA__ = {
     const hiddenTags = uniqueStrings(read('hiddenTags', []));
     const hiddenEvents = uniqueStrings(read('hiddenEvents', []));
     const lastBatchIds = uniqueStrings(read('lastBatchIds', []));
-    return { readIds, hiddenIds, hiddenTags, hiddenEvents, lastBatchIds };
+    const interestedIds = uniqueStrings(read('interestedIds', []));
+    return { readIds, hiddenIds, hiddenTags, hiddenEvents, lastBatchIds, interestedIds };
+  }
+
+  /* 感兴趣：点击刷新时保留这些卡片。 */
+  function markInterested(id, value) {
+    const state = getState();
+    const set = new Set(state.interestedIds);
+    if (value === false) set.delete(id);
+    else set.add(id);
+    write('interestedIds', [...set]);
+    return getState();
+  }
+
+  function isInterested(id) {
+    return getState().interestedIds.includes(id);
+  }
+
+  /* 已换入过的新内容 id：避免同一条新内容被反复换入。 */
+  function getUsedFreshIds() {
+    return uniqueStrings(read('usedFreshIds', []));
+  }
+
+  function addUsedFreshIds(ids) {
+    const set = new Set(getUsedFreshIds());
+    uniqueStrings(ids).forEach((id) => set.add(id));
+    write('usedFreshIds', [...set]);
+    return [...set];
   }
 
   function markRead(id, value) {
@@ -6096,7 +7135,11 @@ window.__KUAYU_DATA__ = {
     getPreference,
     setPreference,
     getCustomTags,
-    saveCustomTags
+    saveCustomTags,
+    markInterested,
+    isInterested,
+    getUsedFreshIds,
+    addUsedFreshIds
   };
 })(window);
 
@@ -7229,6 +8272,7 @@ window.EXPORT_CSS = "/* ========================================================
     sources: [],
     articlesDoc: null,
     articles: [],
+    freshPool: [],
     auditDoc: null,
     pool: [],
     rejected: [],
@@ -7386,52 +8430,117 @@ window.EXPORT_CSS = "/* ========================================================
     setPalette(stored || 'vermilion', false);
   }
 
-  // 内容刷新：触发后端爬取（如已配置 crawlApi），再重新读取已发布的数据文件并重建内容池。
-  // 静态站不内置爬取能力；真正的定时爬取由 GitHub Actions / 后端完成。
+  // 从候选中按质量分加权随机取 n 条（不重复）。
+  function pickWeighted(candidates, n) {
+    const pool = candidates.slice();
+    const picked = [];
+    while (picked.length < n && pool.length) {
+      const weights = pool.map((entry) => Math.pow(Math.max(0.5, entry.quality ? entry.quality.score : 3), 2.2));
+      const total = weights.reduce((sum, weight) => sum + weight, 0);
+      let cursor = Math.random() * total;
+      let index = pool.length - 1;
+      for (let i = 0; i < pool.length; i++) {
+        cursor -= weights[i];
+        if (cursor <= 0) { index = i; break; }
+      }
+      picked.push(pool.splice(index, 1)[0]);
+    }
+    return picked;
+  }
+
+  // 内容刷新：保留标记「感兴趣」的卡片，剔除其余，并从"新内容池"换入全新内容。
+  // 若配置了 crawlApi，则先触发后端真实爬取并重读数据；静态站默认使用预置新内容池。
   async function refreshContent() {
     if (App.refreshing) return;
     App.refreshing = true;
     const button = $('#refresh-button');
     const originalHTML = button ? button.innerHTML : '';
-    if (button) { button.disabled = true; button.textContent = '正在刷新…'; }
+    if (button) { button.disabled = true; button.textContent = '正在获取新内容…'; }
 
     try {
       const cfg = App.config.refresh || {};
+      let crawlMode = false;
+
+      // 可选：触发真实后端爬取并重读数据（把新抓取内容并入内容池与新内容池）。
       if (cfg.crawlApi) {
         try {
-          await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
+          const response = await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
+          crawlMode = !!(response && response.ok);
         } catch (error) {
-          console.warn('触发爬取接口失败，继续读取已发布数据：', error);
+          console.warn('触发爬取接口失败，改用预置新内容池：', error);
+        }
+        if (crawlMode) {
+          const data = await global.DataLoader.loadAll(App.config, { bust: true });
+          App.domainsDoc = data.domains;
+          App.categories = (data.domains && data.domains.categories) || App.categories;
+          App.sourcesDoc = data.sources;
+          App.sources = (data.sources && data.sources.sources) || App.sources;
+          App.articlesDoc = data.articles;
+          App.articles = (data.articles && data.articles.articles) || App.articles;
+          App.auditDoc = data.audit || {};
+          App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
+          App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
+          App.state = global.Store.getState();
+          const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
+          if (global.CustomTags) global.CustomTags.applyTo(App.articles);
+          const rebuilt = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
+          App.pool = rebuilt.items;
+          App.freshPool = global.Recommender.buildPool(
+            (data.freshArticles && data.freshArticles.articles) || [],
+            App.sources, App.categories, App.config, now
+          ).items;
+          const stamp = data.articles && data.articles.snapshot_at;
+          const label = $('#snapshot-label');
+          if (stamp && label) label.textContent = '快照 ' + String(stamp).slice(0, 10).replace(/-/g, '.');
         }
       }
 
-      const data = await global.DataLoader.loadAll(App.config, { bust: true });
-      App.domainsDoc = data.domains;
-      App.categories = (data.domains && data.domains.categories) || App.categories;
-      App.sourcesDoc = data.sources;
-      App.sources = (data.sources && data.sources.sources) || App.sources;
-      App.articlesDoc = data.articles;
-      App.articles = (data.articles && data.articles.articles) || App.articles;
-      App.auditDoc = data.audit || {};
-      App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
-      App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
+      // 1) 保留当前批次中标记「感兴趣」的卡片。
+      const interested = new Set((App.state && App.state.interestedIds) || global.Store.getState().interestedIds);
+      const kept = App.batch.filter((entry) => interested.has(entry.article.id));
 
-      const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
-      const customResult = global.CustomTags ? global.CustomTags.applyTo(App.articles) : null;
-      const built = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
-      App.pool = built.items;
-      App.rejected = built.rejected;
-      App.dropped = built.dropped;
-
-      const stamp = data.articles && data.articles.snapshot_at;
-      if (stamp) {
-        const label = $('#snapshot-label');
-        if (label) label.textContent = '快照 ' + String(stamp).slice(0, 10).replace(/-/g, '.');
+      // 2) 从新内容池换入全新内容：排除已在批次、已换入过的内容，并遵守当前筛选。
+      const used = new Set(global.Store.getUsedFreshIds());
+      const inBatch = new Set(kept.map((entry) => entry.article.id));
+      const needed = Math.max(0, App.config.batchSize - kept.length);
+      let candidates = App.freshPool.filter((entry) =>
+        !used.has(entry.article.id) && !inBatch.has(entry.article.id));
+      if (App.filters.category !== 'all' || App.filters.tag !== 'all') {
+        const allowed = global.Recommender.filterItems(candidates, {
+          state: App.state,
+          categoryFilter: App.filters.category,
+          tagFilter: App.filters.tag
+        });
+        if (allowed.length) candidates = allowed;
       }
+      const picked = pickWeighted(candidates, needed);
 
-      refreshBatch('refresh');
-      const modeText = data.mode === 'embedded' ? '本地内嵌快照（需后端或 Actions 更新数据文件才能看到新内容）' : '已重新读取最新内容数据';
-      showToast((customResult && customResult.applied ? '已套用自建标签；' : '') + modeText + '。');
+      // 3) 记录已换入的新内容 id，避免反复出现。
+      if (picked.length) global.Store.addUsedFreshIds(picked.map((entry) => entry.article.id));
+
+      // 4) 组装新批次（保留感兴趣 + 换入新内容）。
+      const combined = global.Recommender.arrangeForSources
+        ? global.Recommender.arrangeForSources(kept.concat(picked), App.config.maxConsecutiveSource)
+        : kept.concat(picked);
+      App.batch = combined;
+      App.meta = {
+        available: App.freshPool.length,
+        categories: new Set(combined.map((entry) => entry.article.category)).size,
+        sourceCount: new Set(combined.map((entry) => entry.article.source_id)).size,
+        notes: []
+      };
+      if (kept.length) App.meta.notes.push('已保留 ' + kept.length + ' 条标记「感兴趣」的内容。');
+      if (picked.length) App.meta.notes.push('已换入 ' + picked.length + ' 条新内容。');
+      if (combined.length < App.config.batchSize) {
+        App.meta.notes.push('新内容池暂时用尽，已展示可用内容，未用重复内容凑数。');
+      }
+      if (combined.length) global.Store.setLastBatch(combined.map((entry) => entry.article.id));
+      App.issue += 1;
+      global.Store.setPreference('issue', App.issue);
+      renderFeed();
+
+      const modeText = crawlMode ? '已触发爬取并读取最新内容' : '已从预置新内容池换入';
+      showToast(modeText + '：保留 ' + kept.length + ' 条感兴趣，换入 ' + picked.length + ' 条新内容。');
     } catch (error) {
       console.error('内容刷新失败：', error);
       showToast('刷新失败：' + (error && error.message ? error.message : '未知错误'));
@@ -7518,6 +8627,7 @@ window.EXPORT_CSS = "/* ========================================================
     const category = item.category || App.categoryMap.get(article.category);
     const accent = accentFor(article.category);
     const read = App.state.readIds.includes(article.id);
+    const interested = (App.state.interestedIds || []).includes(article.id);
     const url = safeUrl(article.url);
     const homepage = safeUrl(source && source.homepage) || (url ? new URL(url).origin : '#');
     const author = article.author || '未署名';
@@ -7570,6 +8680,7 @@ window.EXPORT_CSS = "/* ========================================================
         '<div class="card-actions">' +
           '<a class="action-link" href="' + escapeHTML(url || '#') + '" target="_blank" rel="noopener noreferrer">阅读原文 ↗</a>' +
           '<button type="button" class="action-button' + (read ? ' is-read' : '') + '" data-action="read" data-id="' + escapeHTML(article.id) + '" aria-pressed="' + read + '">' + (read ? '已读' : '标记已读') + '</button>' +
+          '<button type="button" class="action-button interested-button' + (interested ? ' is-interested' : '') + '" data-action="interested" data-id="' + escapeHTML(article.id) + '" aria-pressed="' + interested + '" title="刷新内容时保留标记了感兴趣的内容">' + (interested ? '★ 感兴趣' : '☆ 感兴趣') + '</button>' +
           '<button type="button" class="action-button" data-action="hide" data-id="' + escapeHTML(article.id) + '">不再推荐</button>' +
           '<span class="action-spacer"></span>' +
           '<div class="card-menu-wrap">' +
@@ -7756,6 +8867,21 @@ window.EXPORT_CSS = "/* ========================================================
       renderFeed();
       if (App.batch.length) global.Store.setLastBatch(App.batch.map((entry) => entry.article.id));
     }, 210);
+  }
+
+  function toggleInterested(id) {
+    App.state = global.Store.markInterested(id, !App.state.interestedIds.includes(id));
+    const active = App.state.interestedIds.includes(id);
+    const card = document.querySelector('.story-card[data-id="' + CSS.escape(id) + '"]');
+    if (card) {
+      const button = card.querySelector('[data-action="interested"]');
+      if (button) {
+        button.classList.toggle('is-interested', active);
+        button.textContent = active ? '★ 感兴趣' : '☆ 感兴趣';
+        button.setAttribute('aria-pressed', String(active));
+      }
+    }
+    showToast(active ? '已标记感兴趣，刷新内容时会保留这条。' : '已取消感兴趣标记。');
   }
 
   function toggleExportMenu(button) {
@@ -8130,6 +9256,11 @@ window.EXPORT_CSS = "/* ========================================================
           hideArticle(hideButton.dataset.id);
           return;
         }
+        const interestedButton = event.target.closest('[data-action="interested"]');
+        if (interestedButton) {
+          toggleInterested(interestedButton.dataset.id);
+          return;
+        }
         const exportButton = event.target.closest('[data-export]');
         if (exportButton) {
           const item = App.batch.find((entry) => entry.article.id === exportButton.dataset.id);
@@ -8203,6 +9334,12 @@ window.EXPORT_CSS = "/* ========================================================
     App.pool = built.items;
     App.rejected = built.rejected;
     App.dropped = built.dropped;
+
+    // 新内容池：用于「刷新内容」时换入全新主题（独立于主池，避免重复凑数）。
+    const freshArticles = (data.freshArticles && data.freshArticles.articles) || [];
+    App.freshPool = global.Recommender.buildPool(
+      freshArticles, App.sources, App.categories, App.config, now
+    ).items;
 
     initTheme();
     initPalette();

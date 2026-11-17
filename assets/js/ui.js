@@ -10,6 +10,7 @@
     sources: [],
     articlesDoc: null,
     articles: [],
+    freshPool: [],
     auditDoc: null,
     pool: [],
     rejected: [],
@@ -167,52 +168,117 @@
     setPalette(stored || 'vermilion', false);
   }
 
-  // 内容刷新：触发后端爬取（如已配置 crawlApi），再重新读取已发布的数据文件并重建内容池。
-  // 静态站不内置爬取能力；真正的定时爬取由 GitHub Actions / 后端完成。
+  // 从候选中按质量分加权随机取 n 条（不重复）。
+  function pickWeighted(candidates, n) {
+    const pool = candidates.slice();
+    const picked = [];
+    while (picked.length < n && pool.length) {
+      const weights = pool.map((entry) => Math.pow(Math.max(0.5, entry.quality ? entry.quality.score : 3), 2.2));
+      const total = weights.reduce((sum, weight) => sum + weight, 0);
+      let cursor = Math.random() * total;
+      let index = pool.length - 1;
+      for (let i = 0; i < pool.length; i++) {
+        cursor -= weights[i];
+        if (cursor <= 0) { index = i; break; }
+      }
+      picked.push(pool.splice(index, 1)[0]);
+    }
+    return picked;
+  }
+
+  // 内容刷新：保留标记「感兴趣」的卡片，剔除其余，并从"新内容池"换入全新内容。
+  // 若配置了 crawlApi，则先触发后端真实爬取并重读数据；静态站默认使用预置新内容池。
   async function refreshContent() {
     if (App.refreshing) return;
     App.refreshing = true;
     const button = $('#refresh-button');
     const originalHTML = button ? button.innerHTML : '';
-    if (button) { button.disabled = true; button.textContent = '正在刷新…'; }
+    if (button) { button.disabled = true; button.textContent = '正在获取新内容…'; }
 
     try {
       const cfg = App.config.refresh || {};
+      let crawlMode = false;
+
+      // 可选：触发真实后端爬取并重读数据（把新抓取内容并入内容池与新内容池）。
       if (cfg.crawlApi) {
         try {
-          await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
+          const response = await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
+          crawlMode = !!(response && response.ok);
         } catch (error) {
-          console.warn('触发爬取接口失败，继续读取已发布数据：', error);
+          console.warn('触发爬取接口失败，改用预置新内容池：', error);
+        }
+        if (crawlMode) {
+          const data = await global.DataLoader.loadAll(App.config, { bust: true });
+          App.domainsDoc = data.domains;
+          App.categories = (data.domains && data.domains.categories) || App.categories;
+          App.sourcesDoc = data.sources;
+          App.sources = (data.sources && data.sources.sources) || App.sources;
+          App.articlesDoc = data.articles;
+          App.articles = (data.articles && data.articles.articles) || App.articles;
+          App.auditDoc = data.audit || {};
+          App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
+          App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
+          App.state = global.Store.getState();
+          const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
+          if (global.CustomTags) global.CustomTags.applyTo(App.articles);
+          const rebuilt = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
+          App.pool = rebuilt.items;
+          App.freshPool = global.Recommender.buildPool(
+            (data.freshArticles && data.freshArticles.articles) || [],
+            App.sources, App.categories, App.config, now
+          ).items;
+          const stamp = data.articles && data.articles.snapshot_at;
+          const label = $('#snapshot-label');
+          if (stamp && label) label.textContent = '快照 ' + String(stamp).slice(0, 10).replace(/-/g, '.');
         }
       }
 
-      const data = await global.DataLoader.loadAll(App.config, { bust: true });
-      App.domainsDoc = data.domains;
-      App.categories = (data.domains && data.domains.categories) || App.categories;
-      App.sourcesDoc = data.sources;
-      App.sources = (data.sources && data.sources.sources) || App.sources;
-      App.articlesDoc = data.articles;
-      App.articles = (data.articles && data.articles.articles) || App.articles;
-      App.auditDoc = data.audit || {};
-      App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
-      App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
+      // 1) 保留当前批次中标记「感兴趣」的卡片。
+      const interested = new Set((App.state && App.state.interestedIds) || global.Store.getState().interestedIds);
+      const kept = App.batch.filter((entry) => interested.has(entry.article.id));
 
-      const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
-      const customResult = global.CustomTags ? global.CustomTags.applyTo(App.articles) : null;
-      const built = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
-      App.pool = built.items;
-      App.rejected = built.rejected;
-      App.dropped = built.dropped;
-
-      const stamp = data.articles && data.articles.snapshot_at;
-      if (stamp) {
-        const label = $('#snapshot-label');
-        if (label) label.textContent = '快照 ' + String(stamp).slice(0, 10).replace(/-/g, '.');
+      // 2) 从新内容池换入全新内容：排除已在批次、已换入过的内容，并遵守当前筛选。
+      const used = new Set(global.Store.getUsedFreshIds());
+      const inBatch = new Set(kept.map((entry) => entry.article.id));
+      const needed = Math.max(0, App.config.batchSize - kept.length);
+      let candidates = App.freshPool.filter((entry) =>
+        !used.has(entry.article.id) && !inBatch.has(entry.article.id));
+      if (App.filters.category !== 'all' || App.filters.tag !== 'all') {
+        const allowed = global.Recommender.filterItems(candidates, {
+          state: App.state,
+          categoryFilter: App.filters.category,
+          tagFilter: App.filters.tag
+        });
+        if (allowed.length) candidates = allowed;
       }
+      const picked = pickWeighted(candidates, needed);
 
-      refreshBatch('refresh');
-      const modeText = data.mode === 'embedded' ? '本地内嵌快照（需后端或 Actions 更新数据文件才能看到新内容）' : '已重新读取最新内容数据';
-      showToast((customResult && customResult.applied ? '已套用自建标签；' : '') + modeText + '。');
+      // 3) 记录已换入的新内容 id，避免反复出现。
+      if (picked.length) global.Store.addUsedFreshIds(picked.map((entry) => entry.article.id));
+
+      // 4) 组装新批次（保留感兴趣 + 换入新内容）。
+      const combined = global.Recommender.arrangeForSources
+        ? global.Recommender.arrangeForSources(kept.concat(picked), App.config.maxConsecutiveSource)
+        : kept.concat(picked);
+      App.batch = combined;
+      App.meta = {
+        available: App.freshPool.length,
+        categories: new Set(combined.map((entry) => entry.article.category)).size,
+        sourceCount: new Set(combined.map((entry) => entry.article.source_id)).size,
+        notes: []
+      };
+      if (kept.length) App.meta.notes.push('已保留 ' + kept.length + ' 条标记「感兴趣」的内容。');
+      if (picked.length) App.meta.notes.push('已换入 ' + picked.length + ' 条新内容。');
+      if (combined.length < App.config.batchSize) {
+        App.meta.notes.push('新内容池暂时用尽，已展示可用内容，未用重复内容凑数。');
+      }
+      if (combined.length) global.Store.setLastBatch(combined.map((entry) => entry.article.id));
+      App.issue += 1;
+      global.Store.setPreference('issue', App.issue);
+      renderFeed();
+
+      const modeText = crawlMode ? '已触发爬取并读取最新内容' : '已从预置新内容池换入';
+      showToast(modeText + '：保留 ' + kept.length + ' 条感兴趣，换入 ' + picked.length + ' 条新内容。');
     } catch (error) {
       console.error('内容刷新失败：', error);
       showToast('刷新失败：' + (error && error.message ? error.message : '未知错误'));
@@ -299,6 +365,7 @@
     const category = item.category || App.categoryMap.get(article.category);
     const accent = accentFor(article.category);
     const read = App.state.readIds.includes(article.id);
+    const interested = (App.state.interestedIds || []).includes(article.id);
     const url = safeUrl(article.url);
     const homepage = safeUrl(source && source.homepage) || (url ? new URL(url).origin : '#');
     const author = article.author || '未署名';
@@ -351,6 +418,7 @@
         '<div class="card-actions">' +
           '<a class="action-link" href="' + escapeHTML(url || '#') + '" target="_blank" rel="noopener noreferrer">阅读原文 ↗</a>' +
           '<button type="button" class="action-button' + (read ? ' is-read' : '') + '" data-action="read" data-id="' + escapeHTML(article.id) + '" aria-pressed="' + read + '">' + (read ? '已读' : '标记已读') + '</button>' +
+          '<button type="button" class="action-button interested-button' + (interested ? ' is-interested' : '') + '" data-action="interested" data-id="' + escapeHTML(article.id) + '" aria-pressed="' + interested + '" title="刷新内容时保留标记了感兴趣的内容">' + (interested ? '★ 感兴趣' : '☆ 感兴趣') + '</button>' +
           '<button type="button" class="action-button" data-action="hide" data-id="' + escapeHTML(article.id) + '">不再推荐</button>' +
           '<span class="action-spacer"></span>' +
           '<div class="card-menu-wrap">' +
@@ -537,6 +605,21 @@
       renderFeed();
       if (App.batch.length) global.Store.setLastBatch(App.batch.map((entry) => entry.article.id));
     }, 210);
+  }
+
+  function toggleInterested(id) {
+    App.state = global.Store.markInterested(id, !App.state.interestedIds.includes(id));
+    const active = App.state.interestedIds.includes(id);
+    const card = document.querySelector('.story-card[data-id="' + CSS.escape(id) + '"]');
+    if (card) {
+      const button = card.querySelector('[data-action="interested"]');
+      if (button) {
+        button.classList.toggle('is-interested', active);
+        button.textContent = active ? '★ 感兴趣' : '☆ 感兴趣';
+        button.setAttribute('aria-pressed', String(active));
+      }
+    }
+    showToast(active ? '已标记感兴趣，刷新内容时会保留这条。' : '已取消感兴趣标记。');
   }
 
   function toggleExportMenu(button) {
@@ -911,6 +994,11 @@
           hideArticle(hideButton.dataset.id);
           return;
         }
+        const interestedButton = event.target.closest('[data-action="interested"]');
+        if (interestedButton) {
+          toggleInterested(interestedButton.dataset.id);
+          return;
+        }
         const exportButton = event.target.closest('[data-export]');
         if (exportButton) {
           const item = App.batch.find((entry) => entry.article.id === exportButton.dataset.id);
@@ -984,6 +1072,12 @@
     App.pool = built.items;
     App.rejected = built.rejected;
     App.dropped = built.dropped;
+
+    // 新内容池：用于「刷新内容」时换入全新主题（独立于主池，避免重复凑数）。
+    const freshArticles = (data.freshArticles && data.freshArticles.articles) || [];
+    App.freshPool = global.Recommender.buildPool(
+      freshArticles, App.sources, App.categories, App.config, now
+    ).items;
 
     initTheme();
     initPalette();

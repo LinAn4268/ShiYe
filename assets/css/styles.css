@@ -1044,6 +1044,13 @@ kbd {
 }
 .action-button:hover, .action-button.is-active { color: var(--ink); border-color: var(--line-strong); background: var(--paper-soft); }
 .action-button.is-read { color: var(--olive); border-color: var(--olive); }
+.interested-button { font-variant-numeric: tabular-nums; }
+.interested-button.is-interested {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  font-weight: 600;
+}
 .action-spacer { margin-left: auto; }
 
 .card-menu-wrap { position: relative; margin-left: auto; }
