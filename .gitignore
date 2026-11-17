@@ -1,0 +1,32 @@
+# 本地运行与测试产物
+本地网页/
+.tmp/
+.wv-test/
+.edge-check/
+.edge-test/
+.edge-test2/
+.edge-profile/
+.pylibs/
+.pydeps/
+pip-*/
+tmp*/
+*.log
+
+# 更新管道的运行时状态：定时任务需要把 ETag/健康/队列/下架记录提交回仓库
+# 日志与历史版本仍不进入公开仓库
+pipeline/state/*
+!pipeline/state/update-state.json
+!pipeline/state/processing.json
+!pipeline/state/manual-queue.json
+!pipeline/state/takedowns.json
+pipeline/logs/
+pipeline/history/
+
+# Windows 控制台设备名（git 状态中的伪文件）
+CON
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

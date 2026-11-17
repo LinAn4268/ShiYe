@@ -1,0 +1,101 @@
+name: Weekly content update and deploy
+
+# 每周一 07:00 Asia/Shanghai（UTC 周日 23:00）。
+# GitHub Actions 的 cron 使用 UTC；GitHub 可能延迟几分钟触发。
+on:
+  schedule:
+    - cron: '0 23 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check LLM secret
+        env:
+          KUAYU_LLM_API_KEY: ${{ secrets.KUAYU_LLM_API_KEY }}
+        run: |
+          if [ -z "$KUAYU_LLM_API_KEY" ]; then
+            echo "::error title=Missing KUAYU_LLM_API_KEY::Add the secret in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+
+      - name: Update content
+        env:
+          KUAYU_LLM_API_KEY: ${{ secrets.KUAYU_LLM_API_KEY }}
+        run: node pipeline/update.js --force
+
+      - name: Rebuild static files
+        run: |
+          node tools/build-fallback.mjs
+          node tools/build-standalone.mjs
+
+      - name: Commit updated content
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/articles.json data/sources.json data/fallback-data.js docs/index.html docs/.nojekyll pipeline/state
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "No changes this week; deployment skipped."
+          else
+            if git diff --cached --quiet -- data/articles.json data/sources.json docs/index.html; then
+              echo "deploy=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "deploy=true" >> "$GITHUB_OUTPUT"
+            fi
+            git commit -m "chore: weekly content update $(date -u +%F)"
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build Pages artifact
+        if: steps.commit.outputs.deploy == 'true'
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -R assets data docs _site/
+          touch _site/.nojekyll
+
+      - name: Configure Pages
+        if: steps.commit.outputs.deploy == 'true'
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Upload artifact
+        if: steps.commit.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy
+        if: steps.commit.outputs.deploy == 'true'
+        id: deployment
+        uses: actions/deploy-pages@v4
