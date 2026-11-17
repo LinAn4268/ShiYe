@@ -65,6 +65,21 @@
       staleSourcePenalty: 0.65
     },
     storagePrefix: 'kuayu.v1.',
+    // 主题颜色预设。与深/浅明暗正交：预设改变强调色与纸色调，明暗由 data-theme 决定。
+    // palettes[0] 为默认（朱砂），其色值直接来自 :root / [data-theme="dark"]，无需额外覆盖。
+    palettes: [
+      { id: 'vermilion', name: '朱砂', swatch: '#b3472f' },
+      { id: 'indigo', name: '靛蓝', swatch: '#2f5b8e' },
+      { id: 'pine', name: '松绿', swatch: '#2f6b52' },
+      { id: 'amber', name: '琥珀', swatch: '#9a6b1f' }
+    ],
+    // 内容刷新配置。
+    // crawlApi 留空时，"刷新内容"按钮只重读已发布的数据文件（GitHub Actions 管道更新后的最新内容）；
+    // 配置后端地址后，会先 POST 触发真实爬取，再重读数据。静态前端不保存任何爬取凭据。
+    refresh: {
+      crawlApi: '',
+      cacheBust: true
+    },
     export: {
       pngScale: 2,
       qrDisplayPx: 240,

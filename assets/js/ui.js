@@ -23,7 +23,8 @@
     issue: 1,
     view: 'feed',
     sourceGrade: 'all',
-    busy: false
+    busy: false,
+    refreshing: false
   };
 
   const LANG = {
@@ -133,6 +134,95 @@
     }
     const prefersDark = global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches;
     setTheme(prefersDark ? 'dark' : 'light');
+  }
+
+  function availablePalettes() {
+    const list = (App.config && App.config.palettes) || [];
+    return list.length ? list : [{ id: 'vermilion', name: '朱砂', swatch: '#b3472f' }];
+  }
+
+  function setPalette(id, persist) {
+    const palettes = availablePalettes();
+    const chosen = palettes.find((item) => item.id === id) || palettes[0];
+    if (!chosen) return;
+    const root = document.documentElement;
+    if (chosen.id === 'vermilion') root.removeAttribute('data-palette');
+    else root.setAttribute('data-palette', chosen.id);
+    $all('.palette-dot').forEach((dot) => {
+      dot.setAttribute('aria-pressed', String(dot.dataset.palette === chosen.id));
+    });
+    if (persist) global.Store.setPreference('palette', chosen.id);
+  }
+
+  function initPalette() {
+    const picker = $('#palette-picker');
+    if (picker) {
+      picker.innerHTML = availablePalettes().map((item) =>
+        '<button type="button" class="palette-dot" data-palette="' + item.id + '"' +
+        ' style="--dot:' + item.swatch + '" aria-pressed="false"' +
+        ' title="' + item.name + '" aria-label="主题颜色：' + item.name + '"></button>'
+      ).join('');
+    }
+    const stored = global.Store.getPreference('palette', null);
+    setPalette(stored || 'vermilion', false);
+  }
+
+  // 内容刷新：触发后端爬取（如已配置 crawlApi），再重新读取已发布的数据文件并重建内容池。
+  // 静态站不内置爬取能力；真正的定时爬取由 GitHub Actions / 后端完成。
+  async function refreshContent() {
+    if (App.refreshing) return;
+    App.refreshing = true;
+    const button = $('#refresh-button');
+    const originalHTML = button ? button.innerHTML : '';
+    if (button) { button.disabled = true; button.textContent = '正在刷新…'; }
+
+    try {
+      const cfg = App.config.refresh || {};
+      if (cfg.crawlApi) {
+        try {
+          await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
+        } catch (error) {
+          console.warn('触发爬取接口失败，继续读取已发布数据：', error);
+        }
+      }
+
+      const data = await global.DataLoader.loadAll(App.config, { bust: true });
+      App.domainsDoc = data.domains;
+      App.categories = (data.domains && data.domains.categories) || App.categories;
+      App.sourcesDoc = data.sources;
+      App.sources = (data.sources && data.sources.sources) || App.sources;
+      App.articlesDoc = data.articles;
+      App.articles = (data.articles && data.articles.articles) || App.articles;
+      App.auditDoc = data.audit || {};
+      App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
+      App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
+
+      const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
+      const customResult = global.CustomTags ? global.CustomTags.applyTo(App.articles) : null;
+      const built = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
+      App.pool = built.items;
+      App.rejected = built.rejected;
+      App.dropped = built.dropped;
+
+      const stamp = data.articles && data.articles.snapshot_at;
+      if (stamp) {
+        const label = $('#snapshot-label');
+        if (label) label.textContent = '快照 ' + String(stamp).slice(0, 10).replace(/-/g, '.');
+      }
+
+      refreshBatch('refresh');
+      const modeText = data.mode === 'embedded' ? '本地内嵌快照（需后端或 Actions 更新数据文件才能看到新内容）' : '已重新读取最新内容数据';
+      showToast((customResult && customResult.applied ? '已套用自建标签；' : '') + modeText + '。');
+    } catch (error) {
+      console.error('内容刷新失败：', error);
+      showToast('刷新失败：' + (error && error.message ? error.message : '未知错误'));
+    } finally {
+      App.refreshing = false;
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+      }
+    }
   }
 
   function renderCategoryChips() {
@@ -735,6 +825,17 @@
       });
     }
 
+    const palettePicker = $('#palette-picker');
+    if (palettePicker) {
+      palettePicker.addEventListener('click', (event) => {
+        const dot = event.target.closest('.palette-dot');
+        if (dot) setPalette(dot.dataset.palette, true);
+      });
+    }
+
+    const refreshButton = $('#refresh-button');
+    if (refreshButton) refreshButton.addEventListener('click', refreshContent);
+
     const shuffle = $('#shuffle-button');
     if (shuffle) shuffle.addEventListener('click', () => refreshBatch('shuffle'));
 
@@ -885,6 +986,7 @@
     App.dropped = built.dropped;
 
     initTheme();
+    initPalette();
     bindEvents();
 
     const search = new URLSearchParams(location.search);

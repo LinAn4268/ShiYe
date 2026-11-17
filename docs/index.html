@@ -75,6 +75,110 @@
   --shadow-lift: 0 2px 0 rgba(0, 0, 0, .2), 0 30px 60px -30px rgba(0, 0, 0, .9);
 }
 
+/* =========================================================
+   主题颜色预设
+   与明暗(data-theme)正交：预设只换强调色与纸色调，明暗仍由 data-theme 决定。
+   朱砂(vermilion) 为默认，沿用 :root / [data-theme="dark"]，无需覆盖。
+   ========================================================= */
+
+/* 靛蓝 · 浅色 */
+[data-palette="indigo"] {
+  --paper: #eef1f5;
+  --paper-deep: #e2e8f0;
+  --paper-soft: #f7f9fc;
+  --card: #fbfcfe;
+  --card-raised: #ffffff;
+  --accent: #2f5b8e;
+  --accent-deep: #1f4068;
+  --accent-soft: #d6e2f0;
+  --accent-wash: rgba(47, 91, 142, .08);
+}
+/* 靛蓝 · 深色 */
+[data-theme="dark"][data-palette="indigo"] {
+  --paper: #12161c;
+  --paper-deep: #0c0f14;
+  --paper-soft: #1a2028;
+  --card: #1a2028;
+  --card-raised: #202834;
+  --accent: #7aa6d8;
+  --accent-deep: #9dbfe6;
+  --accent-soft: #1b2c40;
+  --accent-wash: rgba(122, 166, 216, .12);
+}
+
+/* 松绿 · 浅色 */
+[data-palette="pine"] {
+  --paper: #edf2ec;
+  --paper-deep: #e0e9df;
+  --paper-soft: #f7faf6;
+  --card: #fbfdfa;
+  --card-raised: #ffffff;
+  --accent: #2f6b52;
+  --accent-deep: #20503c;
+  --accent-soft: #d3e6da;
+  --accent-wash: rgba(47, 107, 82, .08);
+}
+/* 松绿 · 深色 */
+[data-theme="dark"][data-palette="pine"] {
+  --paper: #101713;
+  --paper-deep: #0a100c;
+  --paper-soft: #18211b;
+  --card: #18211b;
+  --card-raised: #1e2a22;
+  --accent: #77b79a;
+  --accent-deep: #9ccfb4;
+  --accent-soft: #183027;
+  --accent-wash: rgba(119, 183, 154, .12);
+}
+
+/* 琥珀 · 浅色 */
+[data-palette="amber"] {
+  --paper: #f5efe2;
+  --paper-deep: #ece3cf;
+  --paper-soft: #fbf7ed;
+  --card: #fdfaf1;
+  --card-raised: #fffdf6;
+  --accent: #9a6b1f;
+  --accent-deep: #7a5212;
+  --accent-soft: #f0e3c8;
+  --accent-wash: rgba(154, 107, 31, .09);
+}
+/* 琥珀 · 深色 */
+[data-theme="dark"][data-palette="amber"] {
+  --paper: #17140e;
+  --paper-deep: #100d08;
+  --paper-soft: #211c12;
+  --card: #211c12;
+  --card-raised: #292317;
+  --accent: #d9a94f;
+  --accent-deep: #eec27a;
+  --accent-soft: #3a2c12;
+  --accent-wash: rgba(217, 169, 79, .12);
+}
+
+/* 调色板选择器：标题栏的一组小色点 */
+.palette-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+}
+.palette-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--dot);
+  cursor: pointer;
+  padding: 0;
+  transition: transform .2s var(--ease), border-color .2s;
+}
+.palette-dot:hover { transform: scale(1.18); }
+.palette-dot[aria-pressed="true"] { border-color: var(--ink); }
+
 *,
 *::before,
 *::after { box-sizing: border-box; }
@@ -2120,7 +2224,8 @@ kbd {
       </nav>
 
       <div class="header-tools">
-        <span class="snapshot" title="本页使用静态演示快照">快照 2026.11.16</span>
+        <span class="snapshot" id="snapshot-label" title="本页使用静态演示快照">快照 2026.11.16</span>
+        <div class="palette-picker" id="palette-picker" role="group" aria-label="主题颜色预设"></div>
         <button type="button" class="icon-button" id="theme-toggle" aria-label="切换深浅色主题" title="切换深浅色主题">
           <span class="theme-icon" aria-hidden="true">◐</span>
         </button>
@@ -2140,6 +2245,7 @@ kbd {
               <span>换一批</span>
               <span class="button-arrow" aria-hidden="true">→</span>
             </button>
+            <button type="button" class="button button-quiet" id="refresh-button" title="重新读取最新内容数据，更新内容池">刷新内容</button>
             <button type="button" class="button button-quiet" id="explain-button">推荐规则</button>
             <span class="key-hint">按 <kbd>R</kbd> 也可以</span>
           </div>
@@ -4826,6 +4932,21 @@ window.__KUAYU_DATA__ = {
       staleSourcePenalty: 0.65
     },
     storagePrefix: 'kuayu.v1.',
+    // 主题颜色预设。与深/浅明暗正交：预设改变强调色与纸色调，明暗由 data-theme 决定。
+    // palettes[0] 为默认（朱砂），其色值直接来自 :root / [data-theme="dark"]，无需额外覆盖。
+    palettes: [
+      { id: 'vermilion', name: '朱砂', swatch: '#b3472f' },
+      { id: 'indigo', name: '靛蓝', swatch: '#2f5b8e' },
+      { id: 'pine', name: '松绿', swatch: '#2f6b52' },
+      { id: 'amber', name: '琥珀', swatch: '#9a6b1f' }
+    ],
+    // 内容刷新配置。
+    // crawlApi 留空时，"刷新内容"按钮只重读已发布的数据文件（GitHub Actions 管道更新后的最新内容）；
+    // 配置后端地址后，会先 POST 触发真实爬取，再重读数据。静态前端不保存任何爬取凭据。
+    refresh: {
+      crawlApi: '',
+      cacheBust: true
+    },
     export: {
       pngScale: 2,
       qrDisplayPx: 240,
@@ -5318,13 +5439,21 @@ window.__KUAYU_DATA__ = {
 (function (global) {
   'use strict';
 
-  async function fetchJson(path) {
-    const response = await fetch(path, { cache: 'no-cache' });
+  function bustUrl(path, bust) {
+    if (!bust) return path;
+    const join = path.indexOf('?') >= 0 ? '&' : '?';
+    return path + join + '_t=' + Date.now();
+  }
+
+  async function fetchJson(path, bust) {
+    const response = await fetch(bustUrl(path, bust), { cache: 'no-store' });
     if (!response.ok) throw new Error(path + ' 返回 HTTP ' + response.status);
     return response.json();
   }
 
-  async function loadAll(config) {
+  async function loadAll(config, options) {
+    const opts = options || {};
+    const bust = opts.bust === true && config.refresh && config.refresh.cacheBust;
     const embedded = global.__KUAYU_DATA__;
     const useEmbedded = location.protocol === 'file:' || global.__KUAYU_SINGLE_FILE__ === true;
 
@@ -5344,10 +5473,10 @@ window.__KUAYU_DATA__ = {
 
     try {
       const [domains, sources, articles, audit] = await Promise.all([
-        fetchJson(config.dataFiles.domains),
-        fetchJson(config.dataFiles.sources),
-        fetchJson(config.dataFiles.articles),
-        fetchJson(config.dataFiles.audit)
+        fetchJson(config.dataFiles.domains, bust),
+        fetchJson(config.dataFiles.sources, bust),
+        fetchJson(config.dataFiles.articles, bust),
+        fetchJson(config.dataFiles.audit, bust)
       ]);
       return { domains, sources, articles, audit, mode: 'http' };
     } catch (error) {
@@ -7113,7 +7242,8 @@ window.EXPORT_CSS = "/* ========================================================
     issue: 1,
     view: 'feed',
     sourceGrade: 'all',
-    busy: false
+    busy: false,
+    refreshing: false
   };
 
   const LANG = {
@@ -7223,6 +7353,95 @@ window.EXPORT_CSS = "/* ========================================================
     }
     const prefersDark = global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches;
     setTheme(prefersDark ? 'dark' : 'light');
+  }
+
+  function availablePalettes() {
+    const list = (App.config && App.config.palettes) || [];
+    return list.length ? list : [{ id: 'vermilion', name: '朱砂', swatch: '#b3472f' }];
+  }
+
+  function setPalette(id, persist) {
+    const palettes = availablePalettes();
+    const chosen = palettes.find((item) => item.id === id) || palettes[0];
+    if (!chosen) return;
+    const root = document.documentElement;
+    if (chosen.id === 'vermilion') root.removeAttribute('data-palette');
+    else root.setAttribute('data-palette', chosen.id);
+    $all('.palette-dot').forEach((dot) => {
+      dot.setAttribute('aria-pressed', String(dot.dataset.palette === chosen.id));
+    });
+    if (persist) global.Store.setPreference('palette', chosen.id);
+  }
+
+  function initPalette() {
+    const picker = $('#palette-picker');
+    if (picker) {
+      picker.innerHTML = availablePalettes().map((item) =>
+        '<button type="button" class="palette-dot" data-palette="' + item.id + '"' +
+        ' style="--dot:' + item.swatch + '" aria-pressed="false"' +
+        ' title="' + item.name + '" aria-label="主题颜色：' + item.name + '"></button>'
+      ).join('');
+    }
+    const stored = global.Store.getPreference('palette', null);
+    setPalette(stored || 'vermilion', false);
+  }
+
+  // 内容刷新：触发后端爬取（如已配置 crawlApi），再重新读取已发布的数据文件并重建内容池。
+  // 静态站不内置爬取能力；真正的定时爬取由 GitHub Actions / 后端完成。
+  async function refreshContent() {
+    if (App.refreshing) return;
+    App.refreshing = true;
+    const button = $('#refresh-button');
+    const originalHTML = button ? button.innerHTML : '';
+    if (button) { button.disabled = true; button.textContent = '正在刷新…'; }
+
+    try {
+      const cfg = App.config.refresh || {};
+      if (cfg.crawlApi) {
+        try {
+          await fetch(cfg.crawlApi, { method: 'POST', credentials: 'omit' });
+        } catch (error) {
+          console.warn('触发爬取接口失败，继续读取已发布数据：', error);
+        }
+      }
+
+      const data = await global.DataLoader.loadAll(App.config, { bust: true });
+      App.domainsDoc = data.domains;
+      App.categories = (data.domains && data.domains.categories) || App.categories;
+      App.sourcesDoc = data.sources;
+      App.sources = (data.sources && data.sources.sources) || App.sources;
+      App.articlesDoc = data.articles;
+      App.articles = (data.articles && data.articles.articles) || App.articles;
+      App.auditDoc = data.audit || {};
+      App.sourceMap = new Map(App.sources.map((source) => [source.id, source]));
+      App.categoryMap = new Map(App.categories.map((category) => [category.id, category]));
+
+      const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
+      const customResult = global.CustomTags ? global.CustomTags.applyTo(App.articles) : null;
+      const built = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
+      App.pool = built.items;
+      App.rejected = built.rejected;
+      App.dropped = built.dropped;
+
+      const stamp = data.articles && data.articles.snapshot_at;
+      if (stamp) {
+        const label = $('#snapshot-label');
+        if (label) label.textContent = '快照 ' + String(stamp).slice(0, 10).replace(/-/g, '.');
+      }
+
+      refreshBatch('refresh');
+      const modeText = data.mode === 'embedded' ? '本地内嵌快照（需后端或 Actions 更新数据文件才能看到新内容）' : '已重新读取最新内容数据';
+      showToast((customResult && customResult.applied ? '已套用自建标签；' : '') + modeText + '。');
+    } catch (error) {
+      console.error('内容刷新失败：', error);
+      showToast('刷新失败：' + (error && error.message ? error.message : '未知错误'));
+    } finally {
+      App.refreshing = false;
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+      }
+    }
   }
 
   function renderCategoryChips() {
@@ -7825,6 +8044,17 @@ window.EXPORT_CSS = "/* ========================================================
       });
     }
 
+    const palettePicker = $('#palette-picker');
+    if (palettePicker) {
+      palettePicker.addEventListener('click', (event) => {
+        const dot = event.target.closest('.palette-dot');
+        if (dot) setPalette(dot.dataset.palette, true);
+      });
+    }
+
+    const refreshButton = $('#refresh-button');
+    if (refreshButton) refreshButton.addEventListener('click', refreshContent);
+
     const shuffle = $('#shuffle-button');
     if (shuffle) shuffle.addEventListener('click', () => refreshBatch('shuffle'));
 
@@ -7975,6 +8205,7 @@ window.EXPORT_CSS = "/* ========================================================
     App.dropped = built.dropped;
 
     initTheme();
+    initPalette();
     bindEvents();
 
     const search = new URLSearchParams(location.search);

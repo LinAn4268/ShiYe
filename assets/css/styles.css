@@ -65,6 +65,110 @@
   --shadow-lift: 0 2px 0 rgba(0, 0, 0, .2), 0 30px 60px -30px rgba(0, 0, 0, .9);
 }
 
+/* =========================================================
+   主题颜色预设
+   与明暗(data-theme)正交：预设只换强调色与纸色调，明暗仍由 data-theme 决定。
+   朱砂(vermilion) 为默认，沿用 :root / [data-theme="dark"]，无需覆盖。
+   ========================================================= */
+
+/* 靛蓝 · 浅色 */
+[data-palette="indigo"] {
+  --paper: #eef1f5;
+  --paper-deep: #e2e8f0;
+  --paper-soft: #f7f9fc;
+  --card: #fbfcfe;
+  --card-raised: #ffffff;
+  --accent: #2f5b8e;
+  --accent-deep: #1f4068;
+  --accent-soft: #d6e2f0;
+  --accent-wash: rgba(47, 91, 142, .08);
+}
+/* 靛蓝 · 深色 */
+[data-theme="dark"][data-palette="indigo"] {
+  --paper: #12161c;
+  --paper-deep: #0c0f14;
+  --paper-soft: #1a2028;
+  --card: #1a2028;
+  --card-raised: #202834;
+  --accent: #7aa6d8;
+  --accent-deep: #9dbfe6;
+  --accent-soft: #1b2c40;
+  --accent-wash: rgba(122, 166, 216, .12);
+}
+
+/* 松绿 · 浅色 */
+[data-palette="pine"] {
+  --paper: #edf2ec;
+  --paper-deep: #e0e9df;
+  --paper-soft: #f7faf6;
+  --card: #fbfdfa;
+  --card-raised: #ffffff;
+  --accent: #2f6b52;
+  --accent-deep: #20503c;
+  --accent-soft: #d3e6da;
+  --accent-wash: rgba(47, 107, 82, .08);
+}
+/* 松绿 · 深色 */
+[data-theme="dark"][data-palette="pine"] {
+  --paper: #101713;
+  --paper-deep: #0a100c;
+  --paper-soft: #18211b;
+  --card: #18211b;
+  --card-raised: #1e2a22;
+  --accent: #77b79a;
+  --accent-deep: #9ccfb4;
+  --accent-soft: #183027;
+  --accent-wash: rgba(119, 183, 154, .12);
+}
+
+/* 琥珀 · 浅色 */
+[data-palette="amber"] {
+  --paper: #f5efe2;
+  --paper-deep: #ece3cf;
+  --paper-soft: #fbf7ed;
+  --card: #fdfaf1;
+  --card-raised: #fffdf6;
+  --accent: #9a6b1f;
+  --accent-deep: #7a5212;
+  --accent-soft: #f0e3c8;
+  --accent-wash: rgba(154, 107, 31, .09);
+}
+/* 琥珀 · 深色 */
+[data-theme="dark"][data-palette="amber"] {
+  --paper: #17140e;
+  --paper-deep: #100d08;
+  --paper-soft: #211c12;
+  --card: #211c12;
+  --card-raised: #292317;
+  --accent: #d9a94f;
+  --accent-deep: #eec27a;
+  --accent-soft: #3a2c12;
+  --accent-wash: rgba(217, 169, 79, .12);
+}
+
+/* 调色板选择器：标题栏的一组小色点 */
+.palette-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+}
+.palette-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: var(--dot);
+  cursor: pointer;
+  padding: 0;
+  transition: transform .2s var(--ease), border-color .2s;
+}
+.palette-dot:hover { transform: scale(1.18); }
+.palette-dot[aria-pressed="true"] { border-color: var(--ink); }
+
 *,
 *::before,
 *::after { box-sizing: border-box; }

@@ -2,13 +2,21 @@
 (function (global) {
   'use strict';
 
-  async function fetchJson(path) {
-    const response = await fetch(path, { cache: 'no-cache' });
+  function bustUrl(path, bust) {
+    if (!bust) return path;
+    const join = path.indexOf('?') >= 0 ? '&' : '?';
+    return path + join + '_t=' + Date.now();
+  }
+
+  async function fetchJson(path, bust) {
+    const response = await fetch(bustUrl(path, bust), { cache: 'no-store' });
     if (!response.ok) throw new Error(path + ' 返回 HTTP ' + response.status);
     return response.json();
   }
 
-  async function loadAll(config) {
+  async function loadAll(config, options) {
+    const opts = options || {};
+    const bust = opts.bust === true && config.refresh && config.refresh.cacheBust;
     const embedded = global.__KUAYU_DATA__;
     const useEmbedded = location.protocol === 'file:' || global.__KUAYU_SINGLE_FILE__ === true;
 
@@ -28,10 +36,10 @@
 
     try {
       const [domains, sources, articles, audit] = await Promise.all([
-        fetchJson(config.dataFiles.domains),
-        fetchJson(config.dataFiles.sources),
-        fetchJson(config.dataFiles.articles),
-        fetchJson(config.dataFiles.audit)
+        fetchJson(config.dataFiles.domains, bust),
+        fetchJson(config.dataFiles.sources, bust),
+        fetchJson(config.dataFiles.articles, bust),
+        fetchJson(config.dataFiles.audit, bust)
       ]);
       return { domains, sources, articles, audit, mode: 'http' };
     } catch (error) {

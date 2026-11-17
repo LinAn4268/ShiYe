@@ -30,7 +30,8 @@
       </nav>
 
       <div class="header-tools">
-        <span class="snapshot" title="本页使用静态演示快照">快照 2026.11.16</span>
+        <span class="snapshot" id="snapshot-label" title="本页使用静态演示快照">快照 2026.11.16</span>
+        <div class="palette-picker" id="palette-picker" role="group" aria-label="主题颜色预设"></div>
         <button type="button" class="icon-button" id="theme-toggle" aria-label="切换深浅色主题" title="切换深浅色主题">
           <span class="theme-icon" aria-hidden="true">◐</span>
         </button>
@@ -50,6 +51,7 @@
               <span>换一批</span>
               <span class="button-arrow" aria-hidden="true">→</span>
             </button>
+            <button type="button" class="button button-quiet" id="refresh-button" title="重新读取最新内容数据，更新内容池">刷新内容</button>
             <button type="button" class="button button-quiet" id="explain-button">推荐规则</button>
             <span class="key-hint">按 <kbd>R</kbd> 也可以</span>
           </div>
