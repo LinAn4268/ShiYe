@@ -170,7 +170,8 @@
     const container = $('#tag-filter');
     const row = $('#tag-chips');
     if (!container || !row) return;
-    if (App.filters.category === 'all') {
+    const hasCustom = global.CustomTags && global.CustomTags.getAll().length > 0;
+    if (App.filters.category === 'all' && !hasCustom) {
       container.hidden = true;
       row.innerHTML = '';
       return;
@@ -609,8 +610,96 @@
     }
   }
 
+  function existingTagNames() {
+    const set = new Set();
+    App.pool.forEach((item) => (item.article.tags || []).forEach((tag) => set.add(tag)));
+    if (global.CustomTags) global.CustomTags.getAll().forEach((rule) => set.add(rule.name));
+    return [...set];
+  }
+
+  function populateTagCategories() {
+    const select = $('#tag-category-input');
+    if (!select || select.options.length > 1) return;
+    const fragment = document.createDocumentFragment();
+    App.categories.forEach((category) => {
+      const option = document.createElement('option');
+      option.value = category.id;
+      option.textContent = category.name;
+      fragment.appendChild(option);
+    });
+    select.appendChild(fragment);
+  }
+
+  function renderTagRules() {
+    const list = $('#tag-rule-list');
+    const count = $('#tag-rule-count');
+    if (!list) return;
+    const rules = global.CustomTags ? global.CustomTags.getAll() : [];
+    if (count) count.textContent = String(rules.length);
+    if (!rules.length) {
+      list.innerHTML = '<p class="tag-empty">还没有标签规则。用上面的表单创建一个吧。</p>';
+      return;
+    }
+    list.innerHTML = rules.map((rule) => {
+      const hits = global.CustomTags.countFor(rule, App.articles);
+      const scope = rule.category === 'all'
+        ? '全部领域'
+        : (App.categoryMap.get(rule.category) ? App.categoryMap.get(rule.category).name : rule.category);
+      return '<div class="tag-rule" data-rule-id="' + escapeHTML(rule.id) + '">' +
+        '<div class="tag-rule-head">' +
+          '<span class="tag-rule-name"># ' + escapeHTML(rule.name) + '</span>' +
+          '<button type="button" class="tag-rule-delete" data-action="delete-tag" data-rule-id="' + escapeHTML(rule.id) + '" aria-label="删除标签 ' + escapeHTML(rule.name) + '">删除</button>' +
+        '</div>' +
+        '<div class="tag-rule-meta">' + escapeHTML(scope) + ' · 命中 <strong>' + hits + '</strong> 条 · 关键词 ' + rule.keywords.length + ' 个</div>' +
+        '<div class="tag-rule-keywords">' + rule.keywords.map((word) => '<span class="tag-keyword">' + escapeHTML(word) + '</span>').join('') + '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function applyCustomTags(reason) {
+    if (!global.CustomTags) return;
+    const result = global.CustomTags.applyTo(App.articles);
+    const built = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config,
+      global.Quality.parseDate(App.config.snapshotDate) || new Date());
+    App.pool = built.items;
+    App.rejected = built.rejected;
+    App.dropped = built.dropped;
+    renderTagRules();
+    if (reason === 'created' && result.applied) {
+      showToast('已应用标签，命中 ' + result.touched + ' 条内容。');
+    }
+    refreshBatch(reason === 'created' ? 'filter' : (reason || 'filter'));
+  }
+
+  function handleCreateTag(event) {
+    event.preventDefault();
+    const message = $('#tag-form-message');
+    const name = ($('#tag-name-input') || {}).value;
+    const category = ($('#tag-category-input') || {}).value || 'all';
+    const keywords = ($('#tag-keywords-input') || {}).value;
+    const result = global.CustomTags.add(name, category, keywords, existingTagNames());
+    if (!result.ok) {
+      if (message) { message.textContent = result.error; message.className = 'tag-form-message is-error'; }
+      return;
+    }
+    if (message) { message.textContent = '已创建标签“' + result.rule.name + '”。'; message.className = 'tag-form-message is-ok'; }
+    $('#tag-name-input').value = '';
+    $('#tag-keywords-input').value = '';
+    applyCustomTags('created');
+  }
+
+  function handleDeleteTag(button) {
+    const id = button.dataset.ruleId;
+    const result = global.CustomTags.remove(id);
+    if (!result.ok) { showToast(result.error); return; }
+    global.CustomTags.removeFrom(App.articles, result.rule.name);
+    if (App.filters.tag === result.rule.name) App.filters.tag = 'all';
+    applyCustomTags('filter');
+    showToast('已删除标签“' + result.rule.name + '”。');
+  }
+
   function showView(view) {
-    const valid = ['feed', 'sources', 'method'];
+    const valid = ['feed', 'tags', 'sources', 'method'];
     App.view = valid.includes(view) ? view : 'feed';
     $all('.view').forEach((section) => { section.hidden = section.id !== 'view-' + App.view; });
     $all('.nav-link').forEach((button) => {
@@ -619,6 +708,7 @@
       if (active) button.setAttribute('aria-current', 'page');
       else button.removeAttribute('aria-current');
     });
+    if (App.view === 'tags') { populateTagCategories(); renderTagRules(); }
     if (App.view === 'sources') renderSources();
     if (App.view === 'method') renderMethod();
     const target = document.getElementById('view-' + App.view);
@@ -653,6 +743,20 @@
 
     const reset = $('#reset-filters');
     if (reset) reset.addEventListener('click', resetFilters);
+
+    const manageTags = $('#manage-tags-button');
+    if (manageTags) manageTags.addEventListener('click', () => showView('tags'));
+
+    const tagForm = $('#tag-create-form');
+    if (tagForm) tagForm.addEventListener('submit', handleCreateTag);
+
+    const tagRuleList = $('#tag-rule-list');
+    if (tagRuleList) {
+      tagRuleList.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-action="delete-tag"]');
+        if (button) handleDeleteTag(button);
+      });
+    }
 
     const categoryChips = $('#category-chips');
     if (categoryChips) {
@@ -771,6 +875,10 @@
     App.state = global.Store.getState();
 
     const now = global.Quality.parseDate(App.config.snapshotDate) || new Date();
+    const customResult = global.CustomTags ? global.CustomTags.applyTo(App.articles) : null;
+    if (customResult && customResult.applied) {
+      console.info('[自定义标签] 已套用 ' + customResult.rules + ' 条规则，命中 ' + customResult.touched + ' 条内容。');
+    }
     const built = global.Recommender.buildPool(App.articles, App.sources, App.categories, App.config, now);
     App.pool = built.items;
     App.rejected = built.rejected;

@@ -87,6 +87,16 @@
     return write('pref.' + key, value);
   }
 
+  /* 自定义标签规则：与已读/隐藏分开存放，避免相互干扰。 */
+  function getCustomTags() {
+    const value = read('customTags', []);
+    return Array.isArray(value) ? value : [];
+  }
+
+  function saveCustomTags(rules) {
+    return write('customTags', Array.isArray(rules) ? rules : []);
+  }
+
   global.Store = {
     getState,
     markRead,
@@ -96,6 +106,8 @@
     clearHidden,
     setLastBatch,
     getPreference,
-    setPreference
+    setPreference,
+    getCustomTags,
+    saveCustomTags
   };
 })(window);

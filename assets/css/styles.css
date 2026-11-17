@@ -595,6 +595,13 @@ kbd {
   gap: 18px;
   padding: 10px 0 2px;
 }
+.filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
 .filter-hint {
   font-size: 10.5px;
   color: var(--muted);
@@ -1072,6 +1079,93 @@ kbd {
 }
 .notice-card strong { font-family: var(--serif); font-size: 14px; color: var(--accent); }
 .notice-card p { margin-top: 5px; color: var(--ink-soft); font-size: 12px; line-height: 1.8; }
+
+/* ---------- 自定义标签管理 ---------- */
+
+.tag-manager {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 34px;
+  margin-top: 30px;
+  align-items: start;
+}
+
+.tag-create-form {
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  padding: 22px;
+}
+.tag-create-form h2 { font-family: var(--serif); font-size: 18px; font-weight: 500; margin-bottom: 18px; }
+.tag-field { margin-bottom: 16px; }
+.tag-field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.tag-field input[type="text"],
+.tag-field select,
+.tag-field textarea {
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 9px 11px;
+  font-family: var(--sans);
+  font-size: 12px;
+  border-radius: 2px;
+  resize: vertical;
+}
+.tag-field input:focus,
+.tag-field select:focus,
+.tag-field textarea:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+.tag-hint { font-size: 10px; color: var(--faint); margin-top: 5px; line-height: 1.6; }
+.tag-form-message { font-size: 11px; margin-top: 12px; min-height: 16px; }
+.tag-form-message.is-error { color: var(--accent); }
+.tag-form-message.is-ok { color: var(--olive); }
+
+.tag-rule-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  margin-left: 6px;
+}
+.tag-rule-list { display: flex; flex-direction: column; gap: 12px; }
+.tag-empty { color: var(--muted); font-size: 12px; padding: 24px 0; }
+.tag-rule {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  background: var(--card);
+  padding: 14px 16px;
+}
+.tag-rule-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.tag-rule-name { font-family: var(--serif); font-size: 15px; }
+.tag-rule-delete {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.tag-rule-delete:hover { color: var(--accent); border-color: var(--accent); }
+.tag-rule-meta { font-size: 10.5px; color: var(--muted); margin-top: 6px; }
+.tag-rule-meta strong { color: var(--ink); }
+.tag-rule-keywords { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 9px; }
+.tag-keyword {
+  font-size: 10px;
+  background: var(--accent-wash);
+  color: var(--ink-soft);
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+@media (max-width: 820px) {
+  .tag-manager { grid-template-columns: 1fr; gap: 24px; }
+}
 
 .source-toolbar {
   display: flex;

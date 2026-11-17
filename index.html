@@ -24,6 +24,7 @@
 
       <nav class="main-nav" aria-label="主导航">
         <button type="button" class="nav-link is-active" data-view="feed" aria-current="page">今日推荐</button>
+        <button type="button" class="nav-link" data-view="tags">我的标签</button>
         <button type="button" class="nav-link" data-view="sources">来源登记</button>
         <button type="button" class="nav-link" data-view="method">筛选与规则</button>
       </nav>
@@ -76,7 +77,10 @@
             <p class="section-kicker">BROWSE BY FIELD</p>
             <h2 id="filter-title">选一个领域，或者交给随机。</h2>
           </div>
-          <button type="button" class="text-button" id="reset-filters">重置筛选</button>
+          <div class="filter-actions">
+            <button type="button" class="text-button" id="manage-tags-button">＋ 管理我的标签</button>
+            <button type="button" class="text-button" id="reset-filters">重置筛选</button>
+          </div>
         </div>
 
         <div class="chip-scroller">
@@ -125,6 +129,54 @@
         <p>以上内容均以“中文摘录提炼摘要 + 原文链接”的方式呈现，不替代原文。来源、作者、日期、语言与授权状态见每张卡片。</p>
         <span class="end-rule"></span>
       </section>
+    </section>
+
+    <section id="view-tags" class="view" aria-labelledby="tags-title" hidden>
+      <div class="page-intro">
+        <p class="eyebrow"><span class="eyebrow-rule"></span> MY TAGS</p>
+        <h1 id="tags-title">按自己的主题，<br>给内容<em>重新归类</em>。</h1>
+        <p class="page-lead">创建关键词规则，本站会自动扫描当前与以后更新的所有内容，命中的文章打上你的标签，并出现在筛选器中。规则只保存在你自己的浏览器里，不影响来源许可与质量评分。</p>
+      </div>
+
+      <div class="notice-card">
+        <strong>关于自动生效</strong>
+        <p>标签是根据关键词自动匹配的，不写入内容池、不上传服务器。以后每次内容更新，页面加载时都会用你现有的规则重新匹配一遍，因此你创建的标签会自动覆盖新文章。规则只在这台设备、这个浏览器有效。</p>
+      </div>
+
+      <div class="tag-manager">
+        <form id="tag-create-form" class="tag-create-form" autocomplete="off">
+          <h2>新建标签规则</h2>
+          <div class="tag-field">
+            <label for="tag-name-input">标签名称</label>
+            <input id="tag-name-input" type="text" maxlength="20" placeholder="例如：引力波" required>
+            <p class="tag-hint">最多 20 字，不能与已有标签重名。</p>
+          </div>
+          <div class="tag-field">
+            <label for="tag-category-input">作用领域</label>
+            <select id="tag-category-input">
+              <option value="all">全部领域</option>
+            </select>
+            <p class="tag-hint">选择“全部领域”时，关键词会在任意领域的文章中匹配。</p>
+          </div>
+          <div class="tag-field">
+            <label for="tag-keywords-input">关键词</label>
+            <textarea id="tag-keywords-input" rows="3" placeholder="用逗号、分号或换行分隔，例如：引力波, 黑洞, 时空"></textarea>
+            <p class="tag-hint">最多 12 个关键词，每个不超过 60 字。命中任意一个即打上标签（不区分大小写）。</p>
+          </div>
+          <button type="submit" class="button button-primary" id="tag-create-submit">创建标签</button>
+          <p id="tag-form-message" class="tag-form-message" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="tag-rules-panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="section-kicker">YOUR RULES</p>
+              <h2>我的规则 <span id="tag-rule-count" class="tag-rule-count">0</span></h2>
+            </div>
+          </div>
+          <div id="tag-rule-list" class="tag-rule-list" aria-live="polite"></div>
+        </div>
+      </div>
     </section>
 
     <section id="view-sources" class="view" aria-labelledby="sources-title" hidden>
@@ -318,6 +370,7 @@
   <script src="assets/js/quality.js"></script>
   <script src="assets/js/recommender.js"></script>
   <script src="assets/js/storage.js"></script>
+  <script src="assets/js/custom-tags.js"></script>
   <script src="assets/js/pdf-lite.js"></script>
   <script src="assets/js/export-styles.js"></script>
   <script src="assets/js/exporter.js"></script>
